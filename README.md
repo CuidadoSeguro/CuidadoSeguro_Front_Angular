@@ -1,59 +1,117 @@
-# CuidadoSeguro
+# Cuidado Seguro – Frontend Administrativo
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.21.
+Frontend administrativo de la plataforma **Cuidado Seguro**, desarrollado con **Angular 21**.
 
-## Development server
+Este proyecto corresponde a la interfaz destinada a los **usuarios internos y administradores del sistema**, permitiendo gestionar y supervisar diferentes funcionalidades administrativas de la plataforma.
 
-To start a local development server, run:
+---
 
-```bash
-ng serve
-```
+## 📋 Descripción del proyecto
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+**Cuidado Seguro** es una plataforma orientada a la gestión y seguimiento de información relacionada con pacientes, profesionales de salud, tutores y familiares.
 
-## Code scaffolding
+La solución contempla diferentes interfaces dependiendo del tipo de usuario:
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+- **Frontend Angular:** destinado a usuarios internos y administradores del sistema.
+- **Frontend React:** destinado a usuarios externos, como profesionales, tutores y familiares.
 
-```bash
-ng generate component component-name
-```
+Este repositorio contiene exclusivamente el **frontend Angular correspondiente al portal administrativo**.
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+El objetivo de este frontend es proporcionar una interfaz segura, organizada y escalable que permita a los administradores gestionar información y funcionalidades propias de la plataforma.
 
-```bash
-ng generate --help
-```
+---
 
-## Building
+# 👥 Tipos de usuarios
 
-To build the project run:
+La plataforma contempla diferentes tipos de usuarios.
 
-```bash
-ng build
-```
+## Usuarios internos
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+Los usuarios internos corresponden principalmente a los **administradores del sistema**.
 
-## Running unit tests
+El frontend utilizado para estos usuarios es:
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+**Angular**
 
-```bash
-ng test
-```
+Entre las funcionalidades administrativas que se contemplan se encuentran:
 
-## Running end-to-end tests
+- Gestión de usuarios.
+- Gestión de profesionales.
+- Gestión de tutores y familiares.
+- Gestión de pacientes.
+- Administración de información de la plataforma.
+- Visualización de información administrativa.
+- Indicadores y reportes.
 
-For end-to-end (e2e) testing, run:
+---
 
-```bash
-ng e2e
-```
+## Usuarios externos
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+Los usuarios externos utilizan el frontend desarrollado en **React**.
 
-## Additional Resources
+Entre estos usuarios se encuentran:
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+- Profesionales de salud.
+- Tutores.
+- Familiares.
+
+El frontend React es un proyecto independiente de este repositorio.
+
+---
+
+# 🏗️ Arquitectura general
+
+La arquitectura de Cuidado Seguro contempla dos aplicaciones frontend que utilizan los servicios backend de la plataforma.
+
+```text
+                           CUIDADO SEGURO
+                                  │
+                    ┌─────────────┴─────────────┐
+                    │                           │
+                    ▼                           ▼
+          ┌───────────────────┐       ┌───────────────────┐
+          │ Angular Frontend  │       │  React Frontend   │
+          │                   │       │                   │
+          │ ADMINISTRADOR     │       │ USUARIOS EXTERNOS │
+          │                   │       │                   │
+          └─────────┬─────────┘       └─────────┬─────────┘
+                    │                           │
+                    └─────────────┬─────────────┘
+                                  │
+                                  ▼
+                       ┌────────────────────┐
+                       │   Azure IDaaS      │
+                       │ Microsoft Entra ID │
+                       │                    │
+                       │ OAuth 2.0 / OIDC   │
+                       └─────────┬──────────┘
+                                 │
+                                 ▼
+                                JWT
+                                 │
+                                 ▼
+                       ┌────────────────────┐
+                       │   API Manager     │
+                       │   API Gateway      │
+                       └─────────┬──────────┘
+                                 │
+                                 ▼
+                              ┌───────┐
+                              │  BFF  │
+                              └───┬───┘
+                                  │
+                 ┌────────────────┼────────────────┐
+                 │                │                │
+                 ▼                ▼                ▼
+        ┌──────────────┐  ┌──────────────┐  ┌─────────────────┐
+        │ Usuario /    │  │  Pacientes   │  │ Datos Médicos  │
+        │ Perfil       │  │   Service    │  │    Service      │
+        │ Service      │  │              │  │                 │
+        └──────┬───────┘  └──────┬───────┘  └────────┬────────┘
+               │                 │                   │
+               └─────────────────┼───────────────────┘
+                                 │
+                                 ▼
+                        ┌──────────────────┐
+                        │ Amazon RDS MySQL │
+                        └──────────────────┘

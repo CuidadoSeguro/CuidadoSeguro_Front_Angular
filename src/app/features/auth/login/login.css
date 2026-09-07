@@ -6,6 +6,20 @@
   display: block;
 }
 
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
 
 /* ================================
    PÁGINA
@@ -640,96 +654,6 @@
   background: #176ac8;
 
   transform: translateY(-1px);
-}
-
-.login-button:disabled {
-  background: #a8c6e8;
-
-  cursor: not-allowed;
-
-  transform: none;
-}
-
-
-/* ================================
-   PANEL DE SESIÓN
-=============================== */
-
-.user-panel {
-  display: flex;
-
-  flex-direction: column;
-
-  align-items: center;
-
-  text-align: center;
-}
-
-.user-avatar {
-  width: 74px;
-  height: 74px;
-
-  display: flex;
-
-  align-items: center;
-  justify-content: center;
-
-  margin-bottom: 18px;
-
-  border-radius: 50%;
-
-  background: #d9e7f7;
-
-  color: #1976df;
-
-  font-size: 30px;
-  font-weight: 700;
-}
-
-.user-panel h3 {
-  margin: 0;
-
-  font-size: 20px;
-
-  color: #102342;
-}
-
-.user-name {
-  margin: 8px 0 0;
-
-  font-size: 16px;
-  font-weight: 600;
-
-  color: #253b56;
-}
-
-.user-email {
-  margin: 5px 0 25px;
-
-  font-size: 14px;
-
-  color: #697d96;
-}
-
-
-/* ================================
-   ERROR DE LOGIN
-=============================== */
-
-.login-error {
-  margin: 22px 0 0;
-
-  padding: 13px 15px;
-
-  border-radius: 9px;
-
-  background: #fdeeee;
-
-  color: #b4343f;
-
-  font-size: 13px;
-
-  line-height: 1.5;
 }
 
 

@@ -8,7 +8,7 @@
       <!-- Logo -->
       <div class="brand">
         <div class="brand-icon">
-          <span aria-hidden="true">+</span>
+          <span>+</span>
         </div>
 
         <div>
@@ -55,7 +55,7 @@
             </div>
 
             <div class="health-card">
-              <div class="heart-icon" aria-hidden="true">♥</div>
+              <div class="heart-icon">♥</div>
 
               <div class="lines">
                 <span></span>
@@ -64,7 +64,7 @@
             </div>
 
             <div class="info-card">
-              <div class="mini-icon" aria-hidden="true">♥</div>
+              <div class="mini-icon">♥</div>
               <div class="lines">
                 <span></span>
                 <span></span>
@@ -72,7 +72,7 @@
             </div>
 
             <div class="info-card">
-              <div class="mini-icon" aria-hidden="true">✓</div>
+              <div class="mini-icon">✓</div>
               <div class="lines">
                 <span></span>
                 <span></span>
@@ -86,7 +86,7 @@
         <div class="doctor doctor-left">
           <div class="doctor-head"></div>
           <div class="doctor-body">
-            <div class="stethoscope" aria-hidden="true">◯</div>
+            <div class="stethoscope">◯</div>
           </div>
         </div>
 
@@ -97,7 +97,7 @@
         </div>
 
         <!-- Escudo -->
-        <div class="security-badge" aria-hidden="true">
+        <div class="security-badge">
           ✓
         </div>
 
@@ -107,7 +107,7 @@
       <div class="benefits">
 
         <div class="benefit">
-          <div class="benefit-icon" aria-hidden="true">✓</div>
+          <div class="benefit-icon">✓</div>
 
           <div>
             <h3>Información segura</h3>
@@ -118,7 +118,7 @@
         </div>
 
         <div class="benefit">
-          <div class="benefit-icon" aria-hidden="true">👥</div>
+          <div class="benefit-icon">👥</div>
 
           <div>
             <h3>Trabajo en equipo</h3>
@@ -129,7 +129,7 @@
         </div>
 
         <div class="benefit">
-          <div class="benefit-icon" aria-hidden="true">↗</div>
+          <div class="benefit-icon">↗</div>
 
           <div>
             <h3>Decisiones informadas</h3>
@@ -159,135 +159,14 @@
         </p>
       </div>
 
-      @if (isAuthenticated) {
-
-        <div class="user-panel">
-
-          <div class="user-avatar" aria-hidden="true">✓</div>
-
-          <h3>Sesión iniciada</h3>
-
-          <p class="user-name">{{ accountName }}</p>
-
-          <p class="user-email">{{ accountEmail }}</p>
-
-          <button
-            type="button"
-            class="login-button"
-            (click)="logout()">
-
-            Cerrar sesión
-
-          </button>
-
-        </div>
-
-      } @else {
-
-      <form>
-
-        <!-- Email -->
-        <div class="form-group">
-
-          <label for="email">
-            Email
-          </label>
-
-          <div class="input-wrapper">
-            <span class="input-icon" aria-hidden="true">✉</span>
-
-            <input
-              id="email"
-              type="email"
-              placeholder="ejemplo@correo.com"
-            />
-          </div>
-
-        </div>
-
-
-        <!-- Password -->
-        <div class="form-group">
-
-          <label for="password">
-            Contraseña
-          </label>
-
-          <div class="input-wrapper">
-
-            <span class="input-icon" aria-hidden="true">🔒</span>
-
-            <input
-              id="password"
-              type="password"
-              placeholder="Ingresa tu contraseña"
-            />
-
-            <button
-              type="button"
-              class="password-button"
-              aria-label="Mostrar contraseña">
-              ◉
-            </button>
-
-          </div>
-
-        </div>
-
-
-        <!-- Opciones -->
-        <div class="login-options">
-
-          <label class="remember">
-
-            <input type="checkbox" />
-
-            <span>
-              Recordarme
-            </span>
-
-          </label>
-
-          <a href="#">
-            ¿Olvidaste tu contraseña?
-          </a>
-
-        </div>
-
-
-        <!-- Login -->
-        <button
-          type="submit"
-          class="login-button">
-
-          <span aria-hidden="true">→</span>
-
-          Iniciar sesión
-
-        </button>
-
-      </form>
-
-
-      <!-- Separador -->
-      <div class="divider">
-
-        <span></span>
-
-        <p>o continúa con</p>
-
-        <span></span>
-
-      </div>
-
-
+      
+      <!-- Microsoft -->
       <button
         type="button"
         class="microsoft-button"
-        (click)="loginWithMicrosoft()"
-        [disabled]="authenticating">
+        (click)="loginWithMicrosoft()">
 
-        <span class="microsoft-logo" aria-hidden="true">
+        <span class="microsoft-logo">
 
           <span></span>
           <span></span>
@@ -297,28 +176,11 @@
         </span>
 
         <span>
-          {{ authenticating ? 'Autenticando…' : 'Iniciar sesión con Microsoft' }}
+          Iniciar sesión con Microsoft
         </span>
 
       </button>
 
-
-      <!-- Registro -->
-      <p class="administrator-text">
-
-        ¿No tienes una cuenta?
-
-        <a href="#">
-          Contacta a tu administrador
-        </a>
-
-      </p>
-
-      }
-
-      @if (error) {
-        <p class="login-error" role="alert">{{ error }}</p>
-      }
 
     </div>
 
@@ -333,7 +195,7 @@
 
   <div class="footer-brand">
 
-    <span class="footer-icon" aria-hidden="true">
+    <span class="footer-icon">
       ✓
     </span>
 
@@ -343,6 +205,7 @@
 
   </div>
 
+  
   <div class="footer-links">
 
     <a href="#">Términos de uso</a>
@@ -352,5 +215,4 @@
     <a href="#">Ayuda</a>
 
   </div>
-
 </footer>

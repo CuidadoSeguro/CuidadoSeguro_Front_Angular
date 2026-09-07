@@ -1,6 +1,5 @@
-import { Component } from '@angular/core';
-
-import { AuthService } from '../../../core/auth/auth.service';
+import { Component, inject, OnInit } from '@angular/core';
+import { MsalService } from '@azure/msal-angular';
 
 @Component({
   selector: 'app-login',
@@ -8,62 +7,58 @@ import { AuthService } from '../../../core/auth/auth.service';
   templateUrl: './login.html',
   styleUrl: './login.css',
 })
-export class LoginComponent {
-  authenticating = false;
-  error: string | null = null;
+export class Login implements OnInit {
 
-  constructor(private readonly auth: AuthService) {}
+  private readonly msalService = inject(MsalService);
+  jwtAccess: string | undefined;
 
-  get isAuthenticated(): boolean {
-    return this.auth.isAuthenticated;
-  }
-
-  get accountName(): string {
-    return this.auth.currentAccount?.name ?? '';
-  }
-
-  get accountEmail(): string {
-    return this.auth.currentAccount?.username ?? '';
+  jwtId: string | undefined;
+  
+  ngOnInit(): void {
+    this.handleRedirect();
   }
 
   loginWithMicrosoft(): void {
-    if (this.authenticating) {
+    this.msalService.loginRedirect();
+  }
+
+  handleRedirect(): void {
+    this.msalService.handleRedirectObservable().subscribe({
+      next: (response) => {
+        if (!response) {
+          return;
+        }
+        this.msalService.instance.setActiveAccount(
+          this.msalService.instance.getAllAccounts()[0]
+        );
+        this.getJwt();
+      },
+      error: (error) => console.error('Error al procesar el redirect:', error),
+    });
+  }
+
+  getJwt(): void {
+    const account = this.msalService.instance.getActiveAccount()
+      ?? this.msalService.instance.getAllAccounts()[0];
+
+    if (!account) {
+      console.error('No hay ninguna cuenta activa. Inicia sesión primero.');
       return;
     }
 
-    this.authenticating = true;
-    this.error = null;
+    this.msalService.instance.acquireTokenSilent({
+      account,
+      scopes: ['api://3912eb25-8b20-4725-9b9d-18a99c419ead/access_as_user'],
+    }).then(result => {
+      this.jwtAccess = result.accessToken;
+      //this.jwtId = (result.idTokenClaims as { sub?: string }).sub;
+      this.jwtId= result.idToken;
+      
 
-    this.auth.loginWithMicrosoft().subscribe({
-      next: () => {
-        this.authenticating = false;
-      },
-      error: (err: unknown) => {
-        this.authenticating = false;
-        this.error = this.resolveError(err);
-      },
+      console.log('JWT:', this.jwtAccess);
+      console.log('JWT ID:', this.jwtId);
+    }).catch(error => {
+      console.error('Error al obtener el token:', error);
     });
-  }
-
-  logout(): void {
-    this.auth.logout().subscribe({
-      error: (err: unknown) => {
-        this.error = this.resolveError(err);
-      },
-    });
-  }
-
-  private resolveError(err: unknown): string {
-    if (err instanceof Error && err.message && err.message.includes('AADSTS')) {
-      return err.message;
-    }
-    if (
-      err instanceof Error &&
-      (err.message.includes('clientId') ||
-        err.message.includes('No account in silent request'))
-    ) {
-      return err.message;
-    }
-    return 'No se pudo iniciar sesión. Verifica tu conexión o la configuración de Azure.';
   }
 }
