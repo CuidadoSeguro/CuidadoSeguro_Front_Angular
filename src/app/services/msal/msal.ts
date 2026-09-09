@@ -24,7 +24,11 @@ export const msalInstance: IPublicClientApplication =
       clientId: '3912eb25-8b20-4725-9b9d-18a99c419ead',
       authority:
         'https://login.microsoftonline.com/95cd823a-c239-4ece-b6ea-932724964971',
+<<<<<<< Updated upstream
       redirectUri: 'http://localhost:4200',//'https://jwt.ms',//
+=======
+      redirectUri: 'http://localhost:4200/login',//'https://jwt.ms',//
+>>>>>>> Stashed changes
     },
 
     cache: {
