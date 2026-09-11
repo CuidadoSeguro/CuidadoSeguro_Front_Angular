@@ -26,7 +26,7 @@ export class AuthService {
   }
 
   logout(): Observable<void> {
-    return this.msal.logoutPopup({
+    return this.msal.logoutRedirect({
       postLogoutRedirectUri: window.location.origin,
     });
   }

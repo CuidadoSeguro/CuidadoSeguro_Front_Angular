@@ -18,17 +18,31 @@ describe('LoginGuard', () => {
   let guard: LoginGuard;
   let loginSpy: ReturnType<typeof vi.fn>;
   let routerSpy: { navigateByUrl: ReturnType<typeof vi.fn> };
+  let serviceMock: any;
 
   beforeEach(() => {
-    //localStorage.clear();
     loginSpy = vi.fn();
     routerSpy = { navigateByUrl: vi.fn() };
+
+    serviceMock = {
+      login: loginSpy,
+      getLogged: vi.fn().mockReturnValue(false),
+      getJwtAccess: vi.fn().mockReturnValue(null),
+      getRolBack: vi.fn().mockReturnValue(null),
+      setRolBack: vi.fn().mockImplementation((v: string) => {
+        serviceMock.getRolBack.mockReturnValue(v);
+      }),
+      setLogged: vi.fn().mockImplementation((v: boolean) => {
+        serviceMock.getLogged.mockReturnValue(v);
+      }),
+      clearSession: vi.fn(),
+    };
 
     TestBed.configureTestingModule({
       providers: [
         LoginGuard,
         { provide: Router, useValue: routerSpy },
-        { provide: GeneralService, useValue: { login: loginSpy } },
+        { provide: GeneralService, useValue: serviceMock },
       ],
     });
 
@@ -47,8 +61,9 @@ describe('LoginGuard', () => {
   });
 
   it('permite entrar a /admin cuando el usuario está logueado y es admin', async () => {
-    localStorage.setItem('logged', '1');
-    localStorage.setItem('rol_back', '0');
+    serviceMock.getLogged.mockReturnValue(true);
+    serviceMock.getJwtAccess.mockReturnValue('token');
+    serviceMock.getRolBack.mockReturnValue('0');
 
     const result = await runGuard(guard, '/admin');
 
@@ -56,8 +71,9 @@ describe('LoginGuard', () => {
   });
 
   it('redirige a /error cuando el usuario está logueado pero no es admin', async () => {
-    localStorage.setItem('logged', '1');
-    localStorage.setItem('rol_back', '1');
+    serviceMock.getLogged.mockReturnValue(true);
+    serviceMock.getJwtAccess.mockReturnValue('token');
+    serviceMock.getRolBack.mockReturnValue('1');
 
     const result = await runGuard(guard, '/admin');
 
@@ -66,8 +82,9 @@ describe('LoginGuard', () => {
   });
 
   it('permite entrar a /error cuando el usuario está logueado y no es admin', async () => {
-    localStorage.setItem('logged', '1');
-    localStorage.setItem('rol_back', '1');
+    serviceMock.getLogged.mockReturnValue(true);
+    serviceMock.getJwtAccess.mockReturnValue('token');
+    serviceMock.getRolBack.mockReturnValue('1');
 
     const result = await runGuard(guard, '/error');
 
@@ -75,18 +92,18 @@ describe('LoginGuard', () => {
   });
 
   it('valida contra el backend cuando falta la sesión y guarda los roles', async () => {
-    localStorage.setItem('jwtAccess', 'token');
+    serviceMock.getJwtAccess.mockReturnValue('token');
     loginSpy.mockReturnValue(of({ roles: ['0'] }));
 
     const result = await runGuard(guard, '/admin');
 
     expect(result).toBe(true);
-    expect(localStorage.getItem('logged')).toBe('1');
-    expect(localStorage.getItem('rol_back')).toBe('0');
+    expect(serviceMock.setLogged).toHaveBeenCalledWith(true);
+    expect(serviceMock.setRolBack).toHaveBeenCalledWith('0');
   });
 
   it('redirige a /login cuando el backend rechaza la sesión', async () => {
-    localStorage.setItem('jwtAccess', 'token');
+    serviceMock.getJwtAccess.mockReturnValue('token');
     loginSpy.mockReturnValue(throwError(() => new Error('unauthorized')));
 
     const result = await runGuard(guard, '/admin');

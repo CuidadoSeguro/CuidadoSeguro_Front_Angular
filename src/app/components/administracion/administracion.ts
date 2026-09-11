@@ -7,6 +7,8 @@ import {
   Persona,
   TipoRegistro,
 } from '../../services/administracion.service';
+import { GeneralService } from '../../services/general.service';
+import { AuthService } from '../../core/auth/auth.service';
 
 @Component({
   selector: 'app-administracion',
@@ -15,7 +17,7 @@ import {
   styleUrl: './administracion.css',
 })
 export class Administracion implements OnInit {
-  tipoActivo: TipoRegistro = 'pacientes';
+  tipoActivo: TipoRegistro = 'profesionales';
   registros: Persona[] = [];
   buscando = '';
   cargando = false;
@@ -31,6 +33,8 @@ export class Administracion implements OnInit {
     private readonly fb: FormBuilder,
     private readonly administracionService: AdministracionService,
     private readonly router: Router,
+    private readonly generalService: GeneralService,
+    private readonly authService: AuthService,
   ) {
     this.formulario = this.fb.group({
       nombres: ['', [Validators.required, Validators.minLength(2)]],
@@ -39,8 +43,11 @@ export class Administracion implements OnInit {
       email: ['', [Validators.required, Validators.email]],
       telefono: [''],
       estado: ['Activo', Validators.required],
-      fechaNacimiento: [''],
+      diagnostico: [''],
       especialidad: [''],
+      // Estos campos se mantienen en el modelo de pantalla,
+      // pero el backend actual no los persiste.
+      fechaNacimiento: [''],
       numeroRegistro: [''],
     });
   }
@@ -59,9 +66,21 @@ export class Administracion implements OnInit {
 
   get filtrados(): Persona[] {
     const termino = this.buscando.trim().toLowerCase();
-    if (!termino) return this.registros;
+
+    if (!termino) {
+      return this.registros;
+    }
+
     return this.registros.filter((registro) =>
-      [registro.nombres, registro.apellidos, registro.rut, registro.email, registro.especialidad]
+      [
+        registro.nombres,
+        registro.apellidos,
+        registro.nombreCompleto,
+        registro.rut,
+        registro.email,
+        registro.especialidad,
+        registro.diagnostico,
+      ]
         .filter(Boolean)
         .join(' ')
         .toLowerCase()
@@ -70,7 +89,10 @@ export class Administracion implements OnInit {
   }
 
   cambiarTipo(tipo: TipoRegistro): void {
-    if (this.tipoActivo === tipo) return;
+    if (this.tipoActivo === tipo) {
+      return;
+    }
+
     this.tipoActivo = tipo;
     this.buscando = '';
     this.cargarRegistros();
@@ -79,29 +101,45 @@ export class Administracion implements OnInit {
   cargarRegistros(): void {
     this.cargando = true;
     this.error = '';
+
     this.administracionService.listar(this.tipoActivo).subscribe({
       next: (respuesta) => {
-        this.registros = Array.isArray(respuesta)
-          ? respuesta
-          : (respuesta.content ?? respuesta.data ?? []);
+        this.registros = respuesta;
         this.cargando = false;
       },
-      error: () => {
+      error: (error) => {
+        console.error('ADMIN - error al listar:', error);
         this.registros = [];
         this.cargando = false;
-        this.error = `No fue posible cargar los ${this.titulo.toLowerCase()}. Revisa la conexión con el servidor.`;
+        this.error =
+          `No fue posible cargar los ${this.titulo.toLowerCase()}. ` +
+          'Revisa que Spring Boot esté ejecutándose y que la sesión de Microsoft sea válida.';
       },
     });
   }
 
   abrirNuevo(): void {
     this.registroEditando = null;
-    this.formulario.reset({ estado: 'Activo' });
+
+    this.formulario.reset({
+      nombres: '',
+      apellidos: '',
+      rut: '',
+      email: '',
+      telefono: '',
+      estado: 'Activo',
+      diagnostico: '',
+      especialidad: '',
+      fechaNacimiento: '',
+      numeroRegistro: '',
+    });
+
     this.mostrarFormulario = true;
   }
 
   abrirEdicion(registro: Persona): void {
     this.registroEditando = registro;
+
     this.formulario.reset({
       nombres: registro.nombres,
       apellidos: registro.apellidos,
@@ -109,10 +147,12 @@ export class Administracion implements OnInit {
       email: registro.email,
       telefono: registro.telefono ?? '',
       estado: registro.estado ?? 'Activo',
-      fechaNacimiento: registro.fechaNacimiento ?? '',
+      diagnostico: registro.diagnostico ?? '',
       especialidad: registro.especialidad ?? '',
+      fechaNacimiento: registro.fechaNacimiento ?? '',
       numeroRegistro: registro.numeroRegistro ?? '',
     });
+
     this.mostrarFormulario = true;
   }
 
@@ -121,19 +161,55 @@ export class Administracion implements OnInit {
       this.formulario.markAllAsTouched();
       return;
     }
-    const persona = this.formulario.getRawValue() as Persona;
+
+    const valores = this.formulario.getRawValue();
+
+    const persona: Persona = {
+      id: this.registroEditando?.id,
+      nombres: String(valores.nombres ?? '').trim(),
+      apellidos: String(valores.apellidos ?? '').trim(),
+      rut: String(valores.rut ?? '').trim(),
+      email: String(valores.email ?? '').trim(),
+      telefono: String(valores.telefono ?? '').trim(),
+      estado: String(valores.estado ?? 'Activo'),
+      diagnostico: String(valores.diagnostico ?? '').trim(),
+      especialidad: String(valores.especialidad ?? '').trim(),
+      fechaNacimiento: String(valores.fechaNacimiento ?? ''),
+      numeroRegistro: String(valores.numeroRegistro ?? ''),
+    };
+
     const solicitud = this.registroEditando?.id != null
-      ? this.administracionService.actualizar(this.tipoActivo, this.registroEditando.id, persona)
-      : this.administracionService.crear(this.tipoActivo, persona);
+      ? this.administracionService.actualizar(
+          this.tipoActivo,
+          this.registroEditando.id,
+          persona,
+        )
+      : this.administracionService.crear(
+          this.tipoActivo,
+          persona,
+        );
 
     solicitud.subscribe({
       next: () => {
+        const editando = this.registroEditando !== null;
+
         this.mostrarFormulario = false;
-        this.exito = this.registroEditando ? 'Registro actualizado correctamente.' : 'Registro creado correctamente.';
+        this.registroEditando = null;
+
+        this.exito = editando
+          ? 'Registro actualizado correctamente.'
+          : 'Registro creado correctamente.';
+
         this.cargarRegistros();
         this.ocultarMensaje();
       },
-      error: () => this.error = 'No se pudieron guardar los cambios. Intenta nuevamente.',
+      error: (error) => {
+        console.error('ADMIN - error al guardar:', error);
+
+        this.error =
+          'No se pudieron guardar los cambios. ' +
+          'Comprueba los datos enviados y revisa la consola de Spring Boot.';
+      },
     });
   }
 
@@ -142,34 +218,55 @@ export class Administracion implements OnInit {
   }
 
   eliminar(): void {
-    if (!this.registroAEliminar?.id) return;
-    this.administracionService.eliminar(this.tipoActivo, this.registroAEliminar.id).subscribe({
-      next: () => {
-        this.registroAEliminar = null;
-        this.exito = 'Registro eliminado correctamente.';
-        this.cargarRegistros();
-        this.ocultarMensaje();
-      },
-      error: () => {
-        this.registroAEliminar = null;
-        this.error = 'No se pudo eliminar el registro. Intenta nuevamente.';
+    if (!this.registroAEliminar?.id) {
+      return;
+    }
+
+    const id = this.registroAEliminar.id;
+
+    this.administracionService
+      .eliminar(this.tipoActivo, id)
+      .subscribe({
+        next: () => {
+          this.registroAEliminar = null;
+          this.exito = 'Registro eliminado correctamente.';
+          this.cargarRegistros();
+          this.ocultarMensaje();
+        },
+        error: (error) => {
+          console.error('ADMIN - error al eliminar:', error);
+          this.registroAEliminar = null;
+          this.error =
+            'No se pudo eliminar el registro. Revisa la conexión con el servidor.';
+        },
+      });
+  }
+
+  cerrarSesion(): void {
+    this.generalService.clearSession();
+
+    this.authService.logout().subscribe({
+      error: (error) => {
+        console.error(
+          'ADMIN - error al cerrar sesión:',
+          error,
+        );
+
+        this.router.navigateByUrl('/login');
       },
     });
   }
 
-  cerrarSesion(): void {
-    localStorage.removeItem('jwtAccess');
-    localStorage.removeItem('rol_front');
-    localStorage.removeItem('rol_back');
-    localStorage.removeItem('logged');
-    this.router.navigateByUrl('/login');
-  }
-
   nombreCompleto(registro: Persona): string {
-    return `${registro.nombres} ${registro.apellidos}`.trim();
+    return (
+      registro.nombreCompleto ||
+      `${registro.nombres} ${registro.apellidos}`
+    ).trim();
   }
 
   private ocultarMensaje(): void {
-    window.setTimeout(() => this.exito = '', 3500);
+    window.setTimeout(() => {
+      this.exito = '';
+    }, 3500);
   }
 }

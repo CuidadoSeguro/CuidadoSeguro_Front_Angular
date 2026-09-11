@@ -30,14 +30,11 @@ export class LoginGuard {
     url: string
   ): Observable<boolean> {
 
-    const logged =
-      localStorage.getItem('logged');
+    const logged = this.ser.getLogged();
 
-    const token =
-      localStorage.getItem('jwtAccess');
+    const token = this.ser.getJwtAccess();
 
-    const rolBack =
-      localStorage.getItem('rol_back');
+    const rolBack = this.ser.getRolBack();
 
     console.log(
       'GUARD:',
@@ -53,7 +50,7 @@ export class LoginGuard {
      * podemos resolver directamente.
      */
     if (
-      logged === '1' &&
+      logged &&
       token
     ) {
 
@@ -89,15 +86,11 @@ export class LoginGuard {
             response?.roles
           );
 
-        localStorage.setItem(
-          'rol_back',
+        this.ser.setRolBack(
           isAdmin ? '0' : '1'
         );
 
-        localStorage.setItem(
-          'logged',
-          '1'
-        );
+        this.ser.setLogged(true);
 
         return this.resolveAccess(url);
       }),
@@ -121,7 +114,7 @@ export class LoginGuard {
   ): boolean {
 
     const isAdmin =
-      localStorage.getItem('rol_back') === '0';
+      this.ser.getRolBack() === '0';
 
     const targetIsAdmin =
       url.startsWith('/admin');
@@ -157,11 +150,7 @@ export class LoginGuard {
   }
 
   private clearSession(): void {
-
-    //localStorage.removeItem('jwtAccess');
-    //localStorage.removeItem('rol_front');
-    //localStorage.removeItem('rol_back');
-    //localStorage.removeItem('logged');
+    this.ser.clearSession();
   }
 
   private goTo(
