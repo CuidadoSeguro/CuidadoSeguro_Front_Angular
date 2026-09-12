@@ -1,0 +1,604 @@
+/* ==========================================
+   CONFIGURACIÓN GENERAL
+========================================== */
+
+:host {
+  display: block;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.public-page {
+  min-height: 100vh;
+
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+
+  background: #f5f8fc;
+
+  color: #102b50;
+}
+
+
+/* ==========================================
+   ENCABEZADO
+========================================== */
+
+.public-header {
+  min-height: 90px;
+
+  display: flex;
+  align-items: center;
+
+  padding: 0 70px;
+
+  background: white;
+
+  border-bottom: 1px solid #e1e8f0;
+
+  box-shadow:
+    0 3px 15px rgba(25, 55, 90, 0.05);
+
+  position: relative;
+  z-index: 5;
+}
+
+
+/* ==========================================
+   MARCA
+========================================== */
+
+.brand {
+  display: flex;
+
+  align-items: center;
+
+  gap: 15px;
+}
+
+.brand-icon {
+  width: 58px;
+  height: 58px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #1976df;
+
+  color: white;
+
+  border-radius: 18px;
+
+  font-size: 36px;
+  font-weight: 700;
+
+  box-shadow:
+    0 8px 20px rgba(25, 118, 223, 0.22);
+}
+
+.brand h1 {
+  margin: 0;
+
+  font-size: 27px;
+
+  font-weight: 700;
+
+  color: #102b50;
+}
+
+.brand p {
+  margin: 4px 0 0;
+
+  font-size: 13px;
+
+  color: #627892;
+}
+
+
+/* ==========================================
+   CONTENIDO
+========================================== */
+
+.public-content {
+  max-width: 1250px;
+
+  margin: 0 auto;
+
+  padding: 75px 40px 80px;
+}
+
+
+/* ==========================================
+   BIENVENIDA
+========================================== */
+
+.welcome-section {
+  text-align: center;
+
+  max-width: 900px;
+
+  margin: 0 auto 60px;
+}
+
+.welcome-label,
+.information-label {
+  display: inline-block;
+
+  margin-bottom: 14px;
+
+  font-size: 12px;
+
+  font-weight: 700;
+
+  letter-spacing: 1.5px;
+
+  color: #1976df;
+}
+
+.welcome-section h2 {
+  margin: 0;
+
+  font-size: 46px;
+
+  line-height: 1.2;
+
+  letter-spacing: -1px;
+
+  color: #102b50;
+}
+
+.welcome-section h2 strong {
+  color: #1976df;
+}
+
+.welcome-section p {
+  max-width: 800px;
+
+  margin: 22px auto 0;
+
+  font-size: 18px;
+
+  line-height: 1.7;
+
+  color: #506984;
+}
+
+
+/* ==========================================
+   ESTADÍSTICAS
+========================================== */
+
+.statistics {
+  display: grid;
+
+  grid-template-columns: repeat(2, 1fr);
+
+  gap: 30px;
+
+  margin-bottom: 55px;
+}
+
+
+/* TARJETA */
+
+.stat-card {
+  min-height: 235px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 25px;
+
+  padding: 35px;
+
+  background: white;
+
+  border: 1px solid #e2e9f1;
+
+  border-radius: 18px;
+
+  box-shadow:
+    0 12px 35px rgba(25, 55, 90, 0.08);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-3px);
+
+  box-shadow:
+    0 18px 40px rgba(25, 55, 90, 0.12);
+}
+
+
+/* ICONO */
+
+.stat-icon {
+  width: 90px;
+  height: 90px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 22px;
+
+  background: #e9f3ff;
+
+  font-size: 43px;
+}
+
+
+/* INFORMACIÓN */
+
+.stat-information {
+  display: flex;
+
+  flex-direction: column;
+}
+
+.stat-label {
+  font-size: 11px;
+
+  font-weight: 700;
+
+  letter-spacing: 1.2px;
+
+  color: #6c86a2;
+}
+
+.stat-number {
+  margin-top: 3px;
+
+  font-size: 52px;
+
+  line-height: 1;
+
+  font-weight: 700;
+
+  color: #1976df;
+}
+
+.stat-card h3 {
+  margin: 8px 0 0;
+
+  font-size: 19px;
+
+  color: #203b59;
+}
+
+.stat-card p {
+  margin: 7px 0 0;
+
+  font-size: 13px;
+
+  line-height: 1.5;
+
+  color: #6b7f96;
+}
+
+
+/* ==========================================
+   INFORMACIÓN
+========================================== */
+
+.information-section {
+  position: relative;
+
+  min-height: 240px;
+
+  display: flex;
+
+  align-items: center;
+
+  padding: 45px 55px;
+
+  overflow: hidden;
+
+  background:
+    linear-gradient(
+      135deg,
+      #dcecff 0%,
+      #c2ddfa 100%
+    );
+
+  border-radius: 20px;
+
+  box-shadow:
+    0 12px 30px rgba(25, 70, 120, 0.08);
+}
+
+.information-content {
+  position: relative;
+
+  z-index: 2;
+
+  max-width: 750px;
+}
+
+.information-content h2 {
+  margin: 0;
+
+  font-size: 30px;
+
+  line-height: 1.25;
+
+  color: #102b50;
+}
+
+.information-content p {
+  margin: 18px 0 0;
+
+  font-size: 16px;
+
+  line-height: 1.7;
+
+  color: #385777;
+}
+
+
+/* ==========================================
+   DECORACIÓN
+========================================== */
+
+.information-decoration {
+  position: absolute;
+
+  right: 80px;
+
+  width: 190px;
+  height: 190px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background:
+    rgba(255, 255, 255, 0.35);
+}
+
+.shield {
+  width: 90px;
+  height: 105px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: white;
+
+  background: #1976df;
+
+  clip-path: polygon(
+    50% 0%,
+    92% 15%,
+    86% 70%,
+    50% 100%,
+    14% 70%,
+    8% 15%
+  );
+
+  font-size: 40px;
+  font-weight: 700;
+
+  box-shadow:
+    0 10px 25px rgba(25, 118, 223, 0.25);
+}
+
+
+/* ==========================================
+   FOOTER
+========================================== */
+
+.footer {
+  min-height: 70px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  padding: 0 60px;
+
+  background: #f5f8fc;
+
+  border-top: 1px solid #e1e7ee;
+
+  color: #63758d;
+
+  font-size: 13px;
+}
+
+.footer-brand {
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+}
+
+.footer-icon {
+  width: 25px;
+  height: 25px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: #d9e7f7;
+
+  color: #2877c7;
+
+  font-weight: 700;
+}
+
+.footer-links {
+  display: flex;
+
+  gap: 30px;
+}
+
+.footer-links a {
+  color: #4778ae;
+
+  text-decoration: none;
+
+  transition: 0.2s;
+}
+
+.footer-links a:hover {
+  color: #1976df;
+}
+
+
+/* ==========================================
+   RESPONSIVE
+========================================== */
+
+@media (max-width: 900px) {
+
+  .public-header {
+    padding: 0 30px;
+  }
+
+  .public-content {
+    padding: 55px 25px 65px;
+  }
+
+  .welcome-section h2 {
+    font-size: 38px;
+  }
+
+  .statistics {
+    grid-template-columns: 1fr;
+  }
+
+  .information-decoration {
+    right: 30px;
+
+    opacity: 0.35;
+  }
+
+  .footer {
+    padding: 20px 30px;
+
+    flex-direction: column;
+
+    gap: 15px;
+  }
+}
+
+
+@media (max-width: 600px) {
+
+  .public-header {
+    min-height: 80px;
+
+    padding: 0 20px;
+  }
+
+  .brand-icon {
+    width: 48px;
+    height: 48px;
+
+    font-size: 30px;
+  }
+
+  .brand h1 {
+    font-size: 22px;
+  }
+
+  .brand p {
+    font-size: 11px;
+  }
+
+  .public-content {
+    padding: 40px 18px 50px;
+  }
+
+  .welcome-section {
+    margin-bottom: 40px;
+  }
+
+  .welcome-section h2 {
+    font-size: 32px;
+  }
+
+  .welcome-section p {
+    font-size: 16px;
+  }
+
+  .stat-card {
+    min-height: auto;
+
+    padding: 25px;
+
+    flex-direction: column;
+
+    text-align: center;
+  }
+
+  .stat-information {
+    align-items: center;
+  }
+
+  .stat-icon {
+    width: 75px;
+    height: 75px;
+
+    font-size: 35px;
+  }
+
+  .stat-number {
+    font-size: 45px;
+  }
+
+  .information-section {
+    padding: 35px 25px;
+
+    text-align: center;
+  }
+
+  .information-content h2 {
+    font-size: 25px;
+  }
+
+  .information-decoration {
+    display: none;
+  }
+
+  .footer {
+    text-align: center;
+
+    padding: 25px 15px;
+  }
+
+  .footer-brand {
+    flex-direction: column;
+  }
+
+  .footer-links {
+    gap: 15px;
+
+    flex-wrap: wrap;
+
+    justify-content: center;
+  }
+}
