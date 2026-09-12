@@ -12,7 +12,6 @@
 
 .public-page {
   min-height: 100vh;
-
   font-family:
     Inter,
     -apple-system,
@@ -21,7 +20,6 @@
     sans-serif;
 
   background: #f5f8fc;
-
   color: #102b50;
 }
 
@@ -35,6 +33,7 @@
 
   display: flex;
   align-items: center;
+  justify-content: space-between;
 
   padding: 0 70px;
 
@@ -56,9 +55,7 @@
 
 .brand {
   display: flex;
-
   align-items: center;
-
   gap: 15px;
 }
 
@@ -71,7 +68,6 @@
   justify-content: center;
 
   background: #1976df;
-
   color: white;
 
   border-radius: 18px;
@@ -87,7 +83,6 @@
   margin: 0;
 
   font-size: 27px;
-
   font-weight: 700;
 
   color: #102b50;
@@ -99,6 +94,50 @@
   font-size: 13px;
 
   color: #627892;
+}
+
+
+/* ==========================================
+   BOTÓN CERRAR SESIÓN
+========================================== */
+
+.logout-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 11px 18px;
+
+  border: 1px solid #d5e2f0;
+  border-radius: 10px;
+
+  background: white;
+  color: #174a7e;
+
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.logout-button:hover {
+  background: #f0f6fd;
+  border-color: #1976df;
+  color: #1976df;
+
+  transform: translateY(-1px);
+}
+
+.logout-button span {
+  font-size: 18px;
+  line-height: 1;
 }
 
 
@@ -134,7 +173,6 @@
   margin-bottom: 14px;
 
   font-size: 12px;
-
   font-weight: 700;
 
   letter-spacing: 1.5px;
@@ -146,7 +184,6 @@
   margin: 0;
 
   font-size: 46px;
-
   line-height: 1.2;
 
   letter-spacing: -1px;
@@ -164,7 +201,6 @@
   margin: 22px auto 0;
 
   font-size: 18px;
-
   line-height: 1.7;
 
   color: #506984;
@@ -186,13 +222,14 @@
 }
 
 
-/* TARJETA */
+/* ==========================================
+   TARJETAS
+========================================== */
 
 .stat-card {
   min-height: 235px;
 
   display: flex;
-
   align-items: center;
 
   gap: 25px;
@@ -221,7 +258,9 @@
 }
 
 
-/* ICONO */
+/* ==========================================
+   ICONO
+========================================== */
 
 .stat-icon {
   width: 90px;
@@ -241,7 +280,9 @@
 }
 
 
-/* INFORMACIÓN */
+/* ==========================================
+   INFORMACIÓN
+========================================== */
 
 .stat-information {
   display: flex;
@@ -251,7 +292,6 @@
 
 .stat-label {
   font-size: 11px;
-
   font-weight: 700;
 
   letter-spacing: 1.2px;
@@ -300,7 +340,6 @@
   min-height: 240px;
 
   display: flex;
-
   align-items: center;
 
   padding: 45px 55px;
@@ -408,9 +447,7 @@
   min-height: 70px;
 
   display: flex;
-
   align-items: center;
-
   justify-content: space-between;
 
   padding: 0 60px;
@@ -426,7 +463,6 @@
 
 .footer-brand {
   display: flex;
-
   align-items: center;
 
   gap: 10px;
@@ -469,7 +505,7 @@
 
 
 /* ==========================================
-   RESPONSIVE
+   RESPONSIVE - TABLET
 ========================================== */
 
 @media (max-width: 900px) {
@@ -506,12 +542,22 @@
 }
 
 
+/* ==========================================
+   RESPONSIVE - CELULAR
+========================================== */
+
 @media (max-width: 600px) {
 
   .public-header {
     min-height: 80px;
 
-    padding: 0 20px;
+    padding: 15px 20px;
+
+    gap: 15px;
+  }
+
+  .brand {
+    gap: 10px;
   }
 
   .brand-icon {
@@ -527,6 +573,16 @@
 
   .brand p {
     font-size: 11px;
+  }
+
+  .logout-button {
+    padding: 9px 12px;
+
+    font-size: 12px;
+  }
+
+  .logout-button span {
+    font-size: 16px;
   }
 
   .public-content {
