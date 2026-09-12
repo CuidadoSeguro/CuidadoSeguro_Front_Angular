@@ -27,6 +27,14 @@ export class GeneralService {
   URL = 'http://localhost:8080';
   Login = this.URL+'/api/login';
 
+  CountProfessionals = this.URL+'/public/countProfesionales';
+
+  getProfessionalsCount() {
+    console.log('Obteniendo el número de profesionales...');
+    return this.http.get<number>(this.CountProfessionals);
+  }
+
+
   login(token: string){
     return this.http.get(this.Login,{
       headers: new HttpHeaders({

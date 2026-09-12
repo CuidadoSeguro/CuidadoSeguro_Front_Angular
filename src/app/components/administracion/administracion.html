@@ -342,8 +342,13 @@
 
         <button
           type="submit"
-          class="primary-button">
-          {{ registroEditando ? 'Guardar cambios' : 'Crear registro' }}
+          class="primary-button"
+          [disabled]="guardando">
+          {{
+            guardando
+              ? 'Guardando…'
+              : (registroEditando ? 'Guardar cambios' : 'Crear registro')
+          }}
         </button>
       </footer>
     </form>

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import {
@@ -26,16 +26,18 @@ export class Administracion implements OnInit {
   mostrarFormulario = false;
   registroEditando: Persona | null = null;
   registroAEliminar: Persona | null = null;
+  guardando = false;
 
   formulario!: ReturnType<FormBuilder['group']>;
 
   constructor(
-    private readonly fb: FormBuilder,
-    private readonly administracionService: AdministracionService,
-    private readonly router: Router,
-    private readonly generalService: GeneralService,
-    private readonly authService: AuthService,
-  ) {
+      private readonly fb: FormBuilder,
+      private readonly administracionService: AdministracionService,
+      private readonly router: Router,
+      private readonly generalService: GeneralService,
+      private readonly authService: AuthService,
+      private readonly cdr: ChangeDetectorRef,
+    ) {
     this.formulario = this.fb.group({
       nombres: ['', [Validators.required, Validators.minLength(2)]],
       apellidos: ['', [Validators.required, Validators.minLength(2)]],
@@ -99,26 +101,44 @@ export class Administracion implements OnInit {
   }
 
   cargarRegistros(): void {
-    this.cargando = true;
-    this.error = '';
+      this.cargando = true;
+      this.error = '';
 
-    this.administracionService.listar(this.tipoActivo).subscribe({
-      next: (respuesta) => {
-        this.registros = respuesta;
-        this.cargando = false;
-      },
-      error: (error) => {
-        console.error('ADMIN - error al listar:', error);
-        this.registros = [];
-        this.cargando = false;
-        this.error =
-          `No fue posible cargar los ${this.titulo.toLowerCase()}. ` +
-          'Revisa que Spring Boot esté ejecutándose y que la sesión de Microsoft sea válida.';
-      },
-    });
-  }
+      this.administracionService.listar(this.tipoActivo).subscribe({
+        next: (respuesta) => {
+
+          console.log('RESPUESTA PROFESIONALES:', respuesta);
+
+          this.registros = respuesta;
+          this.cargando = false;
+
+          console.log('REGISTROS EN COMPONENTE:', this.registros);
+          console.log('CARGANDO:', this.cargando);
+
+          // Actualiza inmediatamente la vista
+          this.cdr.detectChanges();
+        },
+
+        error: (error) => {
+
+          console.error('ADMIN - error al listar:', error);
+
+          this.registros = [];
+          this.cargando = false;
+
+          this.error =
+            `No fue posible cargar los ${this.titulo.toLowerCase()}. ` +
+            'Revisa que Spring Boot esté ejecutándose y que la sesión de Microsoft sea válida.';
+
+          // También actualiza la vista cuando existe un error
+          this.cdr.detectChanges();
+        },
+      });
+    }
 
   abrirNuevo(): void {
+    // Abrir el formulario NO crea ningún registro. La creación ocurre
+    // únicamente al enviar el formulario y solo una vez por operación.
     this.registroEditando = null;
 
     this.formulario.reset({
@@ -157,6 +177,11 @@ export class Administracion implements OnInit {
   }
 
   guardar(): void {
+    // Evita solicitudes POST duplicadas por doble clic o varios eventos submit.
+    if (this.guardando) {
+      return;
+    }
+
     if (this.formulario.invalid) {
       this.formulario.markAllAsTouched();
       return;
@@ -177,6 +202,25 @@ export class Administracion implements OnInit {
       fechaNacimiento: String(valores.fechaNacimiento ?? ''),
       numeroRegistro: String(valores.numeroRegistro ?? ''),
     };
+
+    // Primera barrera: evita crear desde la UI un RUT que ya está cargado.
+    // La validación definitiva también existe en Spring Boot.
+    const rutNormalizado = persona.rut.replace(/[.\-\s]/g, '').toLowerCase();
+    const duplicado = this.registros.some((registro) => {
+      const mismoRut = registro.rut
+        .replace(/[.\-\s]/g, '')
+        .toLowerCase() === rutNormalizado;
+
+      return mismoRut && registro.id !== persona.id;
+    });
+
+    if (!this.registroEditando && duplicado) {
+      this.error =
+        `No se pudo crear: ya existe un ${this.esPaciente ? 'paciente' : 'profesional'} con ese RUT.`;
+      return;
+    }
+
+    this.guardando = true;
 
     const solicitud = this.registroEditando?.id != null
       ? this.administracionService.actualizar(
@@ -201,14 +245,22 @@ export class Administracion implements OnInit {
           : 'Registro creado correctamente.';
 
         this.cargarRegistros();
+        this.guardando = false;
         this.ocultarMensaje();
       },
       error: (error) => {
         console.error('ADMIN - error al guardar:', error);
 
-        this.error =
-          'No se pudieron guardar los cambios. ' +
-          'Comprueba los datos enviados y revisa la consola de Spring Boot.';
+        this.guardando = false;
+
+        if (error?.status === 409) {
+          this.error =
+            `No se pudo guardar: ya existe un ${this.esPaciente ? 'paciente' : 'profesional'} con ese RUT.`;
+        } else {
+          this.error =
+            'No se pudieron guardar los cambios. ' +
+            'Comprueba los datos enviados y revisa la consola de Spring Boot.';
+        }
       },
     });
   }
