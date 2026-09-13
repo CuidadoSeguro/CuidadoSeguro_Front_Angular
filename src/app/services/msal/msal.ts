@@ -18,14 +18,17 @@ import {
   IPublicClientApplication,
 } from '@azure/msal-browser';
 
+// Se agregar import 
+import { environment } from '../../environments/environment';
+
 export const msalInstance: IPublicClientApplication =
   new PublicClientApplication({
-    auth: {
-      clientId: '3912eb25-8b20-4725-9b9d-18a99c419ead',
+   auth: {
+      clientId: environment.msal.clientId,
       authority:
-        'https://login.microsoftonline.com/95cd823a-c239-4ece-b6ea-932724964971',
-      redirectUri: 'http://localhost:4200/login',//'https://jwt.ms',//
-    },
+        `https://login.microsoftonline.com/${environment.msal.tenantId}`,
+      redirectUri: environment.msal.redirectUri,
+},
 
     cache: {
       cacheLocation: BrowserCacheLocation.LocalStorage,
