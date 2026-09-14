@@ -53,8 +53,8 @@ interface PacienteDto {
 
 @Injectable({ providedIn: 'root' })
 export class AdministracionService {
-  private readonly apiUrl = 'http://localhost:8080/api';
-
+  //private readonly apiUrl = 'http://localhost:8080/api';
+  private readonly apiUrl = 'https://8k5lqq2fia.execute-api.us-east-1.amazonaws.com/api';
   constructor(
     private readonly http: HttpClient,
     private readonly generalService: GeneralService,
