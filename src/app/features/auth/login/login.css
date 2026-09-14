@@ -838,41 +838,134 @@ body {
 
   .login-page {
     grid-template-columns: 1fr;
+    min-height: auto;
   }
 
+  /* En tablet y móvil mantenemos el panel visual,
+     pero lo adaptamos para que quede arriba */
   .hero-section {
-    display: none;
+    display: block;
+  }
+
+  .hero-content {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 45px 35px 30px;
+  }
+
+  .hero-text {
+    margin-top: 40px;
+  }
+
+  .hero-text h2 {
+    font-size: 34px;
+  }
+
+  .hero-text p {
+    font-size: 16px;
+  }
+
+  .medical-illustration {
+    height: 220px;
+    margin-top: 20px;
   }
 
   .login-section {
-    min-height: calc(100vh - 70px);
+    min-height: auto;
+    padding: 45px 30px;
   }
 
 }
 
+
+/* ================================
+   CELULARES
+================================ */
+
 @media (max-width: 600px) {
 
+  .hero-content {
+    padding: 30px 20px 10px;
+  }
+
+  .brand {
+    gap: 10px;
+  }
+
+  .brand-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 15px;
+    font-size: 29px;
+  }
+
+  .brand h1 {
+    font-size: 25px;
+    letter-spacing: -0.5px;
+  }
+
+  .brand p {
+    font-size: 12px;
+  }
+
+  .hero-text {
+    margin-top: 30px;
+  }
+
+  .hero-text h2 {
+    font-size: 27px;
+    line-height: 1.2;
+  }
+
+  .hero-text p {
+    margin-top: 15px;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /*
+   * La ilustración se mantiene en móvil,
+   * pero ocupa menos espacio.
+   */
+  .medical-illustration {
+    height: 150px;
+    margin-top: 15px;
+    transform: scale(0.75);
+    transform-origin: center top;
+  }
+
   .login-section {
-    padding: 20px;
+    padding: 20px 16px 30px;
   }
 
   .login-card {
-    padding: 35px 25px;
+    width: 100%;
+    max-width: 420px;
+    padding: 30px 20px;
+    margin: 0 auto;
+  }
+
+  .microsoft-button {
+    height: 52px;
+    font-size: 14px;
+  }
+
+  .administrator-text {
+    font-size: 13px;
+    margin-top: 20px;
   }
 
   .footer {
+    min-height: auto;
     flex-direction: column;
-
-    gap: 15px;
-
-    padding: 20px;
+    gap: 12px;
+    padding: 20px 15px;
+    text-align: center;
   }
 
   .footer-links {
-    gap: 15px;
-
+    gap: 12px;
     flex-wrap: wrap;
-
     justify-content: center;
   }
 
