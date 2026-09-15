@@ -69,7 +69,8 @@ export class ErrorComponent implements OnInit {
     localStorage.removeItem('rol_front');
 
     this.msalService.logoutRedirect({
-      postLogoutRedirectUri: '/login'
+      //postLogoutRedirectUri: '/login'
+      postLogoutRedirectUri: 'https://cuidadoseguro.github.io/CuidadoSeguro_Front_Angular/'
     });
   }
 }
