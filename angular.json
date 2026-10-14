@@ -25,10 +25,13 @@
                 "input": "public"
               }
             ],
-            "styles": ["src/styles.css"]
+            "styles": [
+              "src/styles.css"
+            ]
           },
           "configurations": {
             "production": {
+              "baseHref": "/CuidadoSeguro_Front_Angular/",
               "fileReplacements": [
                 {
                   "replace": "src/app/environments/environment.ts",
@@ -50,6 +53,7 @@
               "outputHashing": "all"
             },
             "development": {
+              "baseHref": "/",
               "optimization": false,
               "extractLicenses": false,
               "sourceMap": true
@@ -71,9 +75,6 @@
         },
         "test": {
           "builder": "@angular/build:unit-test"
-        },
-        "deploy": {
-          "builder": "angular-cli-ghpages:deploy"
         }
       }
     }
