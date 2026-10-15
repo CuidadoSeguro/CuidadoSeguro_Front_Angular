@@ -28,6 +28,12 @@ export class Administracion implements OnInit {
   registroAEliminar: Persona | null = null;
   guardando = false;
 
+  //Ficha clínica PDF y envío por correo
+  pacienteSeleccionado: Persona | null = null;
+  mostrarEnvioCorreo = false;
+  correoDestino = '';
+  procesandoFicha = false;
+
   formulario!: ReturnType<FormBuilder['group']>;
 
   constructor(
@@ -156,7 +162,29 @@ export class Administracion implements OnInit {
 
     this.mostrarFormulario = true;
   }
+  descargarFichaClinica(registro: Persona): void {
+    if (!this.esPaciente) {
+      return;
+    }
 
+    this.error = '';
+    this.exito = '';
+
+    // Próximo paso: conectar con microservicio PDF.
+    this.error =
+      'La descarga de la ficha clínica PDF aún debe conectarse al servicio de generación de documentos.';
+  }
+
+  abrirEnvioCorreo(registro: Persona): void {
+    if (!this.esPaciente) {
+      return;
+    }
+
+    this.pacienteSeleccionado = registro;
+    this.correoDestino = registro.email || '';
+    this.mostrarEnvioCorreo = true;
+  }
+  
   abrirEdicion(registro: Persona): void {
     this.registroEditando = registro;
 

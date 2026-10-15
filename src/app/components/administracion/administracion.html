@@ -154,11 +154,12 @@
                 </span>
               </td>
 
+             
               <td class="actions">
                 <button
                   (click)="abrirEdicion(registro)"
                   title="Editar">
-                  ✎
+    ✎
                 </button>
 
                 <button
@@ -167,7 +168,24 @@
                   title="Eliminar">
                   ⌫
                 </button>
+
+                <ng-container *ngIf="esPaciente">
+                  <button
+                    type="button"
+                    (click)="descargarFichaClinica(registro)"
+                    title="Descargar ficha clínica PDF">
+                    <span>📄</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    (click)="abrirEnvioCorreo(registro)"
+                    title="Enviar ficha clínica por correo">
+                    <span>✉️</span>
+                  </button>
+                </ng-container>
               </td>
+
             </tr>
           </tbody>
         </table>
@@ -391,3 +409,71 @@
     </footer>
   </section>
 </div>
+
+
+<div
+  class="overlay"
+  *ngIf="mostrarEnvioCorreo"
+  (click)="mostrarEnvioCorreo = false">
+
+  <section
+    class="modal"
+    role="dialog"
+    aria-modal="true"
+    (click)="$event.stopPropagation()">
+
+    <header>
+      <div>
+        <p>Ficha clínica</p>
+        <h2>Enviar por correo</h2>
+      </div>
+
+      <button
+        type="button"
+        class="close"
+        (click)="mostrarEnvioCorreo = false">
+        ×
+      </button>
+    </header>
+
+    <div class="form-grid">
+      <label class="full">
+        Paciente
+        <input
+          [value]="pacienteSeleccionado
+            ? nombreCompleto(pacienteSeleccionado)
+            : ''"
+          readonly>
+      </label>
+
+      <label class="full">
+        Correo destinatario
+        <input
+          type="email"
+          [(ngModel)]="correoDestino"
+          name="correoDestino"
+          required
+          email
+          placeholder="correo@ejemplo.cl">
+      </label>
+    </div>
+
+    <footer>
+      <button
+        type="button"
+        class="secondary-button"
+        (click)="mostrarEnvioCorreo = false">
+        Cancelar
+      </button>
+
+      <button
+        type="button"
+        class="primary-button"
+        [disabled]="!correoDestino.trim()">
+        Enviar ficha clínica
+      </button>
+    </footer>
+
+  </section>
+</div>
+
