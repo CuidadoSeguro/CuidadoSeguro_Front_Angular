@@ -170,10 +170,11 @@
                 </button>
 
                 <ng-container *ngIf="esPaciente">
-                  <button
-                    type="button"
-                    (click)="descargarFichaClinica(registro)"
-                    title="Descargar ficha clínica PDF">
+                   <button
+                     type="button"
+                     (click)="descargarFichaClinica(registro)"
+                     [disabled]="procesandoFicha"
+                     title="Descargar ficha clínica PDF">
                     <span>📄</span>
                   </button>
 
@@ -332,6 +333,13 @@
         </label>
 
         <ng-container *ngIf="esPaciente">
+          <label>
+            Fecha de nacimiento
+            <input
+              type="date"
+              formControlName="fechaNacimiento">
+          </label>
+
           <label class="full">
             Diagnóstico
             <input
@@ -469,8 +477,9 @@
       <button
         type="button"
         class="primary-button"
-        [disabled]="!correoDestino.trim()">
-        Enviar ficha clínica
+        [disabled]="!correoDestino.trim() || procesandoFicha"
+        (click)="enviarFichaPorCorreo()">
+        {{ procesandoFicha ? 'Generando…' : 'Enviar ficha clínica' }}
       </button>
     </footer>
 

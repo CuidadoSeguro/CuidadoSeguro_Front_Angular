@@ -1,4 +1,4 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { GeneralService } from './general.service';
@@ -49,6 +49,12 @@ interface PacienteDto {
   telefono?: string;
   diagnostico?: string;
   estado?: string;
+  fechaNacimiento?: string;
+}
+
+export interface SolicitudPdf {
+  requestId: string;
+  estado: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -128,6 +134,43 @@ export class AdministracionService {
     );
   }
 
+  solicitarFichaClinica(
+    pacienteId: string | number,
+    correoDestino?: string,
+  ): Observable<SolicitudPdf> {
+    return this.http.post<SolicitudPdf>(
+      `${this.apiUrl}/pacientes/${pacienteId}/ficha-clinica`,
+      { correoDestino: correoDestino?.trim() || null },
+      { headers: this.headers },
+    );
+  }
+
+  descargarFichaClinica(
+    requestId: string,
+  ): Observable<HttpResponse<Blob>> {
+    return this.http.get(
+      `${this.apiUrl}/pacientes/fichas-clinicas/${requestId}`,
+      {
+        headers: this.headers,
+        observe: 'response',
+        responseType: 'blob',
+      },
+    );
+  }
+
+  descargarFichaClinicaDirecta(
+    pacienteId: string | number,
+  ): Observable<HttpResponse<Blob>> {
+    return this.http.get(
+      `${this.apiUrl}/pacientes/${pacienteId}/ficha-clinica/descarga`,
+      {
+        headers: this.headers,
+        observe: 'response',
+        responseType: 'blob',
+      },
+    );
+  }
+
   private personaToProfesional(persona: Persona): ProfesionalDto {
     return {
       id: this.toNumberOrUndefined(persona.id),
@@ -149,6 +192,7 @@ export class AdministracionService {
       telefono: persona.telefono ?? '',
       diagnostico: persona.diagnostico ?? '',
       estado: persona.estado ?? 'Activo',
+      fechaNacimiento: persona.fechaNacimiento ?? '',
     };
   }
 
@@ -182,6 +226,7 @@ export class AdministracionService {
       telefono: dto.telefono ?? '',
       diagnostico: dto.diagnostico ?? '',
       estado: dto.estado ?? 'Activo',
+      fechaNacimiento: dto.fechaNacimiento ?? '',
     };
   }
 

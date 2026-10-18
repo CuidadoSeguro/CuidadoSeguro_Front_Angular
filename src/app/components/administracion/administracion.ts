@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { HttpResponse } from '@angular/common/http';
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -163,16 +164,24 @@ export class Administracion implements OnInit {
     this.mostrarFormulario = true;
   }
   descargarFichaClinica(registro: Persona): void {
-    if (!this.esPaciente) {
+    if (!this.esPaciente || registro.id == null) {
       return;
     }
 
     this.error = '';
     this.exito = '';
 
-    // Próximo paso: conectar con microservicio PDF.
-    this.error =
-      'La descarga de la ficha clínica PDF aún debe conectarse al servicio de generación de documentos.';
+    if (!registro.fechaNacimiento) {
+      this.error =
+        'Registra la fecha de nacimiento del paciente antes de generar su ficha clínica.';
+      return;
+    }
+
+    this.procesandoFicha = true;
+    this.administracionService.descargarFichaClinicaDirecta(registro.id).subscribe({
+      next: (respuesta) => this.guardarFichaClinica(respuesta),
+      error: () => this.mostrarErrorFicha(),
+    });
   }
 
   abrirEnvioCorreo(registro: Persona): void {
@@ -183,6 +192,37 @@ export class Administracion implements OnInit {
     this.pacienteSeleccionado = registro;
     this.correoDestino = registro.email || '';
     this.mostrarEnvioCorreo = true;
+  }
+
+  enviarFichaPorCorreo(): void {
+    const paciente = this.pacienteSeleccionado;
+
+    if (!paciente || paciente.id == null || !this.correoDestino.trim()) {
+      return;
+    }
+
+    if (!paciente.fechaNacimiento) {
+      this.mostrarEnvioCorreo = false;
+      this.error =
+        'Registra la fecha de nacimiento del paciente antes de generar su ficha clínica.';
+      return;
+    }
+
+    this.procesandoFicha = true;
+    this.error = '';
+
+    this.administracionService
+      .solicitarFichaClinica(paciente.id, this.correoDestino)
+      .subscribe({
+        next: () => {
+          this.procesandoFicha = false;
+          this.mostrarEnvioCorreo = false;
+          this.exito =
+            'La ficha clínica se está generando y será enviada al correo indicado.';
+          this.ocultarMensaje();
+        },
+        error: () => this.mostrarErrorFicha(),
+      });
   }
   
   abrirEdicion(registro: Persona): void {
@@ -348,5 +388,44 @@ export class Administracion implements OnInit {
     window.setTimeout(() => {
       this.exito = '';
     }, 3500);
+  }
+
+  private consultarDescarga(requestId: string, intento = 0): void {
+    this.administracionService.descargarFichaClinica(requestId).subscribe({
+      next: (respuesta) => {
+        if (respuesta.status === 202 && intento < 30) {
+          window.setTimeout(() => this.consultarDescarga(requestId, intento + 1), 1000);
+          return;
+        }
+
+        this.guardarFichaClinica(respuesta);
+      },
+      error: () => this.mostrarErrorFicha(),
+    });
+  }
+
+  private guardarFichaClinica(respuesta: HttpResponse<Blob>): void {
+    if (respuesta.status !== 200 || !respuesta.body) {
+      this.mostrarErrorFicha();
+      return;
+    }
+
+    const url = URL.createObjectURL(respuesta.body);
+    const enlace = document.createElement('a');
+    enlace.href = url;
+    enlace.download = 'ficha-clinica.pdf';
+    enlace.click();
+    URL.revokeObjectURL(url);
+
+    this.procesandoFicha = false;
+    this.exito = 'Ficha clínica generada y descargada correctamente.';
+    this.ocultarMensaje();
+  }
+
+  private mostrarErrorFicha(): void {
+    this.procesandoFicha = false;
+    this.mostrarEnvioCorreo = false;
+    this.error =
+      'No fue posible generar la ficha clínica. Revisa la conexión con el servicio de documentos.';
   }
 }
