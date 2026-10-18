@@ -1,7 +1,7 @@
 export const environment = {
   production: true,
 
-  apiUrl: 'https://8k5lqq2fia.execute-api.us-east-1.amazonaws.com',
+  apiUrl: 'https://i412mkzzqd.execute-api.us-east-1.amazonaws.com/',
 
   msal: {
     clientId: '3912eb25-8b20-4725-9b9d-18a99c419ead',
