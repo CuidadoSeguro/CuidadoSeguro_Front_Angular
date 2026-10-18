@@ -24,7 +24,7 @@ export class GeneralService {
   httpOptions = {
     headers: new HttpHeaders({'Content-Type': 'application/json'})
   };
-  URL = 'http://localhost:8080';
+  URL = 'https://i412mkzzqd.execute-api.us-east-1.amazonaws.com';
   //URL = 'https://8k5lqq2fia.execute-api.us-east-1.amazonaws.com';
   Login = this.URL+'/api/login';
 
