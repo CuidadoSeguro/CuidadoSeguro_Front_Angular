@@ -60,7 +60,8 @@ export interface SolicitudPdf {
 @Injectable({ providedIn: 'root' })
 export class AdministracionService {
   private readonly apiUrl = 'https://i412mkzzqd.execute-api.us-east-1.amazonaws.com/api';
-  //private readonly apiUrl = 'https://8k5lqq2fia.execute-api.us-east-1.amazonaws.com/api';
+  //private readonly apiUrl = 'https://i412mkzzqd.execute-api.us-east-1.amazonaws.com/api';
+  
   constructor(
     private readonly http: HttpClient,
     private readonly generalService: GeneralService,
