@@ -440,6 +440,134 @@
 
 
 /* ==========================================
+   BUSCAR ESPECIALISTA
+========================================== */
+
+.search-section {
+  margin-bottom: 55px;
+  padding: 45px 55px;
+  background: white;
+  border: 1px solid #e2e9f1;
+  border-radius: 20px;
+  box-shadow: 0 12px 35px rgba(25, 55, 90, 0.08);
+}
+
+.search-label {
+  display: inline-block;
+  margin-bottom: 14px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: #1976df;
+}
+
+.search-content h2 {
+  margin: 0;
+  font-size: 30px;
+  color: #102b50;
+}
+
+.search-content > p {
+  margin: 14px 0 0;
+  font-size: 16px;
+  line-height: 1.6;
+  color: #506984;
+}
+
+.search-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 20px;
+  align-items: end;
+  margin-top: 30px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.field label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #203b59;
+}
+
+.field select {
+  padding: 12px 14px;
+  border: 1px solid #d5e2f0;
+  border-radius: 10px;
+  background: white;
+  color: #102b50;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.search-button {
+  padding: 12px 22px;
+  border: none;
+  border-radius: 10px;
+  background: #1976df;
+  color: white;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.search-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.search-message {
+  margin-top: 18px;
+  font-size: 14px;
+  color: #6b7f96;
+}
+
+.results-list {
+  display: grid;
+  gap: 15px;
+  margin: 25px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.result-card {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 20px;
+  background: #f5f8fc;
+  border: 1px solid #e2e9f1;
+  border-radius: 14px;
+}
+
+.result-card span {
+  font-size: 13px;
+  color: #6b7f96;
+}
+
+.schedules {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.schedules span {
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: #e9f3ff;
+  color: #174a7e;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* ==========================================
    FOOTER
 ========================================== */
 
@@ -524,6 +652,14 @@
 
   .statistics {
     grid-template-columns: 1fr;
+  }
+
+  .search-form {
+    grid-template-columns: 1fr;
+  }
+
+  .search-section {
+    padding: 35px 25px;
   }
 
   .information-decoration {

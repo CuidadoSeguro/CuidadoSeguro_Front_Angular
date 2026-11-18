@@ -184,6 +184,13 @@
                     title="Enviar ficha clínica por correo">
                     <span>✉️</span>
                   </button>
+
+                  <button
+                    type="button"
+                    (click)="abrirPanelSignosVitales(registro)"
+                    title="Registrar signos vitales">
+                    <span>💓</span>
+                  </button>
                 </ng-container>
               </td>
 
@@ -386,8 +393,8 @@
   *ngIf="registroAEliminar"
   (click)="registroAEliminar = null">
 
-  <section
-    class="modal confirm"
+    <section
+    class="modal"
     role="dialog"
     aria-modal="true"
     (click)="$event.stopPropagation()">
@@ -415,6 +422,186 @@
         Eliminar
       </button>
     </footer>
+  </section>
+</div>
+
+<div
+  class="overlay"
+  *ngIf="mostrarPanelSignos"
+  (click)="cerrarPanelSignosVitales()">
+
+    <section
+    class="modal signos-modal-content"
+    role="dialog"
+    aria-modal="true"
+    (click)="$event.stopPropagation()">
+
+    <header>
+      <div>
+        <p>Signos vitales</p>
+        <h2>
+          {{ signosVitalesPacienteNombre }}
+        </h2>
+      </div>
+
+      <button
+        type="button"
+        class="close"
+        (click)="cerrarPanelSignosVitales()">
+        ×
+      </button>
+    </header>
+
+    <div class="form-grid signos-form-grid" [formGroup]="formularioSignoVital">
+      <label class="full">
+        Paciente
+        <input
+          [value]="signosVitalesPacienteNombre"
+          readonly>
+      </label>
+
+      <label>
+        Presión sistólica
+        <input
+          type="number"
+          formControlName="presionSistolica"
+          placeholder="mmHg">
+      </label>
+
+      <label>
+        Presión diastólica
+        <input
+          type="number"
+          formControlName="presionDiastolica"
+          placeholder="mmHg">
+      </label>
+
+      <label>
+        Frecuencia cardíaca
+        <input
+          type="number"
+          formControlName="frecuenciaCardiaca"
+          placeholder="lpm">
+      </label>
+
+      <label>
+        Frecuencia respiratoria
+        <input
+          type="number"
+          formControlName="frecuenciaRespiratoria"
+          placeholder="rpm">
+      </label>
+
+      <label>
+        Temperatura
+        <input
+          type="number"
+          step="0.1"
+          formControlName="temperatura"
+          placeholder="°C">
+      </label>
+
+      <label>
+        Saturación O₂
+        <input
+          type="number"
+          formControlName="saturacionOxigeno"
+          placeholder="%">
+      </label>
+
+      <label>
+        Fecha y hora
+        <input
+          type="datetime-local"
+          formControlName="fechaHora">
+      </label>
+    </div>
+
+    <footer class="signos-footer">
+      <button
+        type="button"
+        class="secondary-button"
+        (click)="cerrarPanelSignosVitales()">
+        Cerrar
+      </button>
+
+      <button
+        *ngIf="tieneDatosSignoVital"
+        type="button"
+        class="primary-button"
+        [disabled]="procesandoSigno || formularioSignoVital.invalid"
+        (click)="registrarSignoVital()">
+        {{ procesandoSigno ? 'Registrando…' : 'Registrar signo vital' }}
+      </button>
+    </footer>
+
+    <div class="notice error" *ngIf="error">
+      <span>!</span>{{ error }}
+      <button (click)="error = ''">×</button>
+    </div>
+
+    <section class="signos-list">
+      <div class="signos-list-header">
+        <h3>Últimos registros</h3>
+        <button
+          type="button"
+          class="refresh"
+          (click)="cargarSignosVitales()"
+          [disabled]="cargandoSignos || signosVitalesPacienteId == null"
+          title="Volver a cargar signos vitales">
+          ↻ Actualizar
+        </button>
+      </div>
+
+      <div class="empty-state" *ngIf="cargandoSignos">
+        <span class="spinner"></span>
+        Cargando signos vitales…
+      </div>
+
+      <div class="signos-table-wrap">
+        <table *ngIf="!cargandoSignos && signosVitales.length">
+        <thead>
+          <tr>
+            <th>FECHA</th>
+            <th>P. SISTÓLICA</th>
+            <th>P. DIASTÓLICA</th>
+            <th>FREC. CARDIACA</th>
+            <th>FREC. RESPIRATORIA</th>
+            <th>TEMPERATURA</th>
+            <th>SAT. O₂</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let s of signosVitales">
+            <td>{{ formatearFechaHora(s.fechaHora) }}</td>
+            <td>{{ s.presionSistolica ?? '—' }}</td>
+            <td>{{ s.presionDiastolica ?? '—' }}</td>
+            <td>{{ s.frecuenciaCardiaca ?? '—' }}</td>
+            <td>{{ s.frecuenciaRespiratoria ?? '—' }}</td>
+            <td>{{ s.temperatura ?? '—' }}</td>
+            <td>{{ s.saturacionOxigeno ?? '—' }}</td>
+          </tr>
+        </tbody>
+      </table>
+      </div>
+
+      <div class="empty-state" *ngIf="!cargandoSignos && !signosVitales.length">
+        <span>💓</span>
+        <h3>Sin registros de signos vitales</h3>
+        <p>Registra los primeros signos vitales usando el formulario de arriba.</p>
+      </div>
+
+      <div *ngIf="sugerenciaEspecialista" class="sugerencia-card signos-sugerencia">
+        <h3>Sugerencia de especialista (últimos 3 signos vitales)</h3>
+        <p><strong>Especialista:</strong> {{ sugerenciaEspecialista }}</p>
+        <p>{{ mensajeSugerencia }}</p>
+        <div
+          class="signos-badge"
+          [class.urgente]="requiereAtencion">
+          {{ requiereAtencion ? 'Requiere atención' : 'Control rutinario' }}
+        </div>
+      </div>
+    </section>
   </section>
 </div>
 

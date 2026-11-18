@@ -129,6 +129,80 @@
 
 
     <!-- ==========================================
+         BUSCAR ESPECIALISTA
+    =========================================== -->
+
+    <section class="search-section">
+      <div class="search-content">
+        <span class="search-label">BUSCAR ATENCIÓN</span>
+        <h2>Encuentra un especialista</h2>
+        <p>
+          Selecciona una especialidad y un tipo de examen para ver los
+          profesionales disponibles y sus horarios.
+        </p>
+
+        <form class="search-form" (ngSubmit)="buscarEspecialistas()">
+          <div class="field">
+            <label for="especialidad">Especialidad</label>
+            <select
+              id="especialidad"
+              name="especialidad"
+              [(ngModel)]="especialidadSeleccionada"
+              required>
+              <option value="" disabled>Selecciona una especialidad</option>
+              <option
+                *ngFor="let especialidad of especialidades"
+                [value]="especialidad.id">
+                {{ especialidad.nombre }}
+              </option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="tipoExamen">Tipo de examen</label>
+            <select
+              id="tipoExamen"
+              name="tipoExamen"
+              [(ngModel)]="tipoExamenSeleccionado"
+              required>
+              <option value="" disabled>Selecciona un tipo de examen</option>
+              <option
+                *ngFor="let tipo of tiposExamen"
+                [value]="tipo.id">
+                {{ tipo.nombre }}
+              </option>
+            </select>
+          </div>
+
+          <button
+            type="submit"
+            class="search-button"
+            [disabled]="!formularioValido || buscando">
+            {{ buscando ? 'Consultando...' : 'Consultar Horarios Disponibles por correo' }}
+          </button>
+        </form>
+
+        <p *ngIf="mensajeBusqueda" class="search-message">{{ mensajeBusqueda }}</p>
+
+        <div *ngIf="busquedaRealizada && !buscando && !mensajeBusqueda && resultados.length === 0" class="search-message">
+          No se encontraron especialistas para la selección realizada.
+        </div>
+
+        <ul *ngIf="resultados.length" class="results-list">
+          <li *ngFor="let especialista of resultados" class="result-card">
+            <strong>{{ especialista.nombreCompleto }}</strong>
+            <span>{{ especialista.especialidad }} · {{ especialista.centro }}</span>
+            <div class="schedules">
+              <span *ngFor="let horario of especialista.horarios">
+                {{ horario.fecha }} {{ horario.horaInicio }}–{{ horario.horaFin }}
+              </span>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ==========================================
          INFORMACIÓN
     =========================================== -->
 

@@ -1,6 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from'@angular/common/http';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
+import {
+  Especialidad,
+  EspecialistaDisponible,
+  SolicitudBusquedaEspecialista,
+  TipoExamen,
+} from '../models/busqueda-especialista';
 
 @Injectable({
   providedIn: 'root'
@@ -24,17 +30,37 @@ export class GeneralService {
   httpOptions = {
     headers: new HttpHeaders({'Content-Type': 'application/json'})
   };
-  URL = 'https://i412mkzzqd.execute-api.us-east-1.amazonaws.com';
-  //URL = 'https://8k5lqq2fia.execute-api.us-east-1.amazonaws.com';
+  //URL = 'https://i412mkzzqd.execute-api.us-east-1.amazonaws.com';
+  URL = 'http://localhost:8080';
   Login = this.URL+'/api/login';
 
   CountProfessionals = this.URL+'/public/countProfesionales';
+  Especialidades = this.URL+'/public/especialidades';
+  TiposExamen = this.URL+'/public/tipos-examen';
+  BuscarEspecialistas = this.URL+'/public/buscar-especialistas';
 
   getProfessionalsCount() {
     console.log('Obteniendo el número de profesionales...');
     return this.http.get<number>(this.CountProfessionals);
   }
 
+
+  getEspecialidades(): Observable<Especialidad[]> {
+    return this.http.get<Especialidad[]>(this.Especialidades);
+  }
+
+  getTiposExamen(): Observable<TipoExamen[]> {
+    return this.http.get<TipoExamen[]>(this.TiposExamen);
+  }
+
+  buscarEspecialistas(
+    solicitud: SolicitudBusquedaEspecialista
+  ): Observable<EspecialistaDisponible[]> {
+    return this.http.post<EspecialistaDisponible[]>(
+      this.BuscarEspecialistas,
+      solicitud
+    );
+  }
 
   login(token: string){
     return this.http.get(this.Login,{

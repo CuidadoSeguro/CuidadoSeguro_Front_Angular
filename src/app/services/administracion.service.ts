@@ -1,7 +1,8 @@
 import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, map } from 'rxjs';
+import { Observable, map, timeout } from 'rxjs';
 import { GeneralService } from './general.service';
+import { SignoVital, RegistrarSignoVitalDTO } from '../models/signo-vital';
 
 export type TipoRegistro = 'pacientes' | 'profesionales';
 
@@ -59,7 +60,7 @@ export interface SolicitudPdf {
 
 @Injectable({ providedIn: 'root' })
 export class AdministracionService {
-  private readonly apiUrl = 'https://i412mkzzqd.execute-api.us-east-1.amazonaws.com/api';
+  private readonly apiUrl = 'http://localhost:8080/api';
   //private readonly apiUrl = 'https://i412mkzzqd.execute-api.us-east-1.amazonaws.com/api';
   
   constructor(
@@ -169,6 +170,29 @@ export class AdministracionService {
         observe: 'response',
         responseType: 'blob',
       },
+    );
+  }
+
+  registrarSignoVital(
+    pacienteId: string | number,
+    signo: RegistrarSignoVitalDTO,
+  ): Observable<SignoVital> {
+    return this.http.post<SignoVital>(
+      `${this.apiUrl}/pacientes/${pacienteId}/signos-vitales`,
+      signo,
+      { headers: this.headers },
+    );
+  }
+
+  listarSignosVitalesPorPaciente(
+    pacienteId: string | number,
+  ): Observable<SignoVital[]> {
+    return this.http.get<SignoVital[]>(
+      `${this.apiUrl}/pacientes/${pacienteId}/signos-vitales`,
+      { headers: this.headers },
+    ).pipe(
+      // Evita que la interfaz quede cargando indefinidamente si el API no responde.
+      timeout({ first: 15000 }),
     );
   }
 

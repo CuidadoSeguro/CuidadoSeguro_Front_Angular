@@ -10,6 +10,8 @@ import {
 } from '../../services/administracion.service';
 import { GeneralService } from '../../services/general.service';
 import { AuthService } from '../../core/auth/auth.service';
+import { SignoVital, RegistrarSignoVitalDTO } from '../../models/signo-vital';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-administracion',
@@ -35,6 +37,19 @@ export class Administracion implements OnInit {
   correoDestino = '';
   procesandoFicha = false;
 
+  // Signos vitales
+  signosVitales: SignoVital[] = [];
+  signosVitalesPacienteId: number | null = null;
+  signosVitalesPacienteNombre = '';
+  cargandoSignos = false;
+  mostrarPanelSignos = false;
+  formularioSignoVital!: ReturnType<FormBuilder['group']>;
+  procesandoSigno = false;
+  sugerenciaEspecialista: string | null = null;
+  mensajeSugerencia: string | null = null;
+  requiereAtencion = false;
+  private solicitudSignosId = 0;
+
   formulario!: ReturnType<FormBuilder['group']>;
 
   constructor(
@@ -58,6 +73,16 @@ export class Administracion implements OnInit {
       // pero el backend actual no los persiste.
       fechaNacimiento: [''],
       numeroRegistro: [''],
+    });
+
+    this.formularioSignoVital = this.fb.group({
+      presionSistolica: [''],
+      presionDiastolica: [''],
+      frecuenciaCardiaca: [''],
+      frecuenciaRespiratoria: [''],
+      temperatura: [''],
+      saturacionOxigeno: [''],
+      fechaHora: [new Date().toISOString().slice(0, 16)],
     });
   }
 
@@ -224,7 +249,291 @@ export class Administracion implements OnInit {
         error: () => this.mostrarErrorFicha(),
       });
   }
-  
+
+  // ---------- Signos vitales ----------
+
+  abrirPanelSignosVitales(paciente: Persona): void {
+    const pacienteId = Number(paciente.id);
+
+    if (!Number.isFinite(pacienteId) || pacienteId <= 0) {
+      this.error = 'No se puede consultar signos vitales: el paciente no tiene un ID válido.';
+      return;
+    }
+
+    // Invalida cualquier petición anterior para evitar que una respuesta tardía
+    // de otro paciente sobrescriba la lista actualmente abierta.
+    this.solicitudSignosId++;
+    this.signosVitalesPacienteId = pacienteId;
+    this.signosVitalesPacienteNombre = this.nombreCompleto(paciente);
+    this.signosVitales = [];
+    this.sugerenciaEspecialista = null;
+    this.mensajeSugerencia = null;
+    this.requiereAtencion = false;
+    this.error = '';
+    this.formularioSignoVital.reset({
+      presionSistolica: '',
+      presionDiastolica: '',
+      frecuenciaCardiaca: '',
+      frecuenciaRespiratoria: '',
+      temperatura: '',
+      saturacionOxigeno: '',
+      fechaHora: new Date().toISOString().slice(0, 16),
+    });
+    this.mostrarPanelSignos = true;
+    this.cargarSignosVitales();
+  }
+
+  cerrarPanelSignosVitales(): void {
+    // Una respuesta que llegue después del cierre ya no debe modificar el panel.
+    this.solicitudSignosId++;
+    this.cargandoSignos = false;
+    this.mostrarPanelSignos = false;
+    this.signosVitalesPacienteId = null;
+    this.signosVitales = [];
+    this.sugerenciaEspecialista = null;
+    this.mensajeSugerencia = null;
+    this.requiereAtencion = false;
+    this.formularioSignoVital.reset({
+      presionSistolica: '',
+      presionDiastolica: '',
+      frecuenciaCardiaca: '',
+      frecuenciaRespiratoria: '',
+      temperatura: '',
+      saturacionOxigeno: '',
+      fechaHora: new Date().toISOString().slice(0, 16),
+    });
+  }
+
+  cargarSignosVitales(): void {
+    const pacienteId = this.signosVitalesPacienteId;
+
+    if (pacienteId == null || !Number.isFinite(pacienteId)) {
+      this.signosVitales = [];
+      this.cargandoSignos = false;
+      return;
+    }
+
+    // Cada consulta recibe un identificador. Una respuesta antigua nunca
+    // puede reemplazar los datos del paciente que está seleccionado ahora.
+    const solicitudActual = ++this.solicitudSignosId;
+    this.cargandoSignos = true;
+    this.error = '';
+
+    this.administracionService
+      .listarSignosVitalesPorPaciente(pacienteId)
+      .pipe(
+        finalize(() => {
+          // finalize también se ejecuta cuando la petición termina con error.
+          if (solicitudActual === this.solicitudSignosId) {
+            this.cargandoSignos = false;
+            this.cdr.detectChanges();
+          }
+        }),
+      )
+      .subscribe({
+        next: (respuesta) => {
+          // El endpoint entrega directamente un arreglo JSON: [ {...}, {...} ].
+          // No se debe leer respuesta.data ni respuesta.content.
+          if (
+            solicitudActual !== this.solicitudSignosId ||
+            this.signosVitalesPacienteId !== pacienteId
+          ) {
+            return;
+          }
+
+          this.signosVitales = Array.isArray(respuesta) ? respuesta : [];
+          this.evaluarSugerencia();
+          this.cargandoSignos = false;
+          this.cdr.detectChanges();
+
+          console.log(
+            `Signos vitales cargados para paciente ${pacienteId}:`,
+            this.signosVitales.length,
+            this.signosVitales,
+          );
+        },
+        error: (err) => {
+          if (
+            solicitudActual !== this.solicitudSignosId ||
+            this.signosVitalesPacienteId !== pacienteId
+          ) {
+            return;
+          }
+
+          console.error(
+            'Error al cargar signos vitales del paciente:',
+            pacienteId,
+            err,
+          );
+          this.signosVitales = [];
+          this.error = err?.name === 'TimeoutError'
+            ? 'El servidor tardó más de 15 segundos en responder. Vuelve a intentar.'
+            : `No fue posible cargar los signos vitales (HTTP ${err?.status ?? 'sin respuesta'}).`;
+          this.cdr.detectChanges();
+        },
+      });
+  }
+
+  registrarSignoVital(): void {
+    if (this.procesandoSigno || this.signosVitalesPacienteId == null) {
+      return;
+    }
+
+    const valores = this.formularioSignoVital.getRawValue();
+
+    const signo: RegistrarSignoVitalDTO = {
+      pacienteId: this.signosVitalesPacienteId,
+      nombrePaciente: this.signosVitalesPacienteNombre,
+      correoPaciente: '',
+      presionSistolica: valores.presionSistolica
+        ? Number(valores.presionSistolica)
+        : undefined,
+      presionDiastolica: valores.presionDiastolica
+        ? Number(valores.presionDiastolica)
+        : undefined,
+      frecuenciaCardiaca: valores.frecuenciaCardiaca
+        ? Number(valores.frecuenciaCardiaca)
+        : undefined,
+      frecuenciaRespiratoria: valores.frecuenciaRespiratoria
+        ? Number(valores.frecuenciaRespiratoria)
+        : undefined,
+      temperatura: valores.temperatura ? Number(valores.temperatura) : undefined,
+      saturacionOxigeno: valores.saturacionOxigeno
+        ? Number(valores.saturacionOxigeno)
+        : undefined,
+      fechaHora: valores.fechaHora || undefined,
+    };
+
+    // Obtener el correo del paciente desde el listado si está disponible.
+    const paciente = this.registros.find(
+      (r) =>
+        (typeof r.id === 'number' ? r.id : Number(r.id)) ===
+        this.signosVitalesPacienteId,
+    );
+    if (paciente) {
+      signo.correoPaciente = paciente.email || '';
+    }
+
+    this.procesandoSigno = true;
+    this.error = '';
+
+    this.administracionService
+      .registrarSignoVital(this.signosVitalesPacienteId, signo)
+      .subscribe({
+        next: () => {
+          this.procesandoSigno = false;
+          this.formularioSignoVital.reset({
+            presionSistolica: '',
+            presionDiastolica: '',
+            frecuenciaCardiaca: '',
+            frecuenciaRespiratoria: '',
+            temperatura: '',
+            saturacionOxigeno: '',
+            fechaHora: new Date().toISOString().slice(0, 16),
+          });
+          this.cargarSignosVitales();
+        },
+        error: () => {
+          this.procesandoSigno = false;
+          this.error =
+            'No se pudo registrar el signo vital. Intenta nuevamente.';
+        },
+      });
+  }
+
+  get ultimosTres(): SignoVital[] {
+    return this.signosVitales.slice(0, 3);
+  }
+
+  get tieneDatosSignoVital(): boolean {
+    const v = this.formularioSignoVital?.getRawValue();
+    if (!v) return false;
+
+    return [
+      v.presionSistolica,
+      v.presionDiastolica,
+      v.frecuenciaCardiaca,
+      v.frecuenciaRespiratoria,
+      v.temperatura,
+      v.saturacionOxigeno,
+    ].some((valor) => valor !== null && valor !== undefined && String(valor).trim() !== '');
+  }
+
+  private evaluarSugerencia(): void {
+    const tres = this.ultimosTres;
+    if (tres.length < 3) {
+      this.sugerenciaEspecialista = null;
+      this.mensajeSugerencia =
+        'Se necesitan al menos 3 signos vitales registrados para generar una sugerencia de especialista.';
+      this.requiereAtencion = false;
+      return;
+    }
+
+    let anomaliasCardio = 0;
+    let anomaliasResp = 0;
+
+    for (const s of tres) {
+      if (
+        this.fueraDeRango(s.presionSistolica, 90, 140) ||
+        this.fueraDeRango(s.presionDiastolica, 60, 90) ||
+        this.fueraDeRango(s.frecuenciaCardiaca, 60, 100)
+      ) {
+        anomaliasCardio++;
+      }
+      if (
+        this.fueraDeRango(s.temperatura, 36.1, 37.2) ||
+        this.fueraDeRango(s.saturacionOxigeno, 95, 100) ||
+        this.fueraDeRango(s.frecuenciaRespiratoria, 12, 20)
+      ) {
+        anomaliasResp++;
+      }
+    }
+
+    if (anomaliasCardio >= 2 && anomaliasResp >= 2) {
+      this.sugerenciaEspecialista = 'Cardiología y Neumología';
+      this.mensajeSugerencia =
+        'Tus últimos 3 signos vitales presentan valores fuera de rango tanto ' +
+        'cardiovasculares como respiratorios. Se recomienda valoración integral.';
+      this.requiereAtencion = true;
+    } else if (anomaliasCardio >= 2) {
+      this.sugerenciaEspecialista = 'Cardiología';
+      this.mensajeSugerencia =
+        'Tus últimos 3 signos vitales muestran valores de presión arterial o ' +
+        'frecuencia cardíaca fuera de rango. Se recomienda cardiología.';
+      this.requiereAtencion = true;
+    } else if (anomaliasResp >= 2) {
+      this.sugerenciaEspecialista = 'Neumología';
+      this.mensajeSugerencia =
+        'Tus últimos 3 signos vitales muestran valores de temperatura, ' +
+        'saturación de oxígeno o frecuencia respiratoria fuera de rango. ' +
+        'Se recomienda neumología.';
+      this.requiereAtencion = true;
+    } else if (anomaliasCardio === 1 || anomaliasResp === 1) {
+      this.sugerenciaEspecialista = 'Medicina General';
+      this.mensajeSugerencia =
+        'Tus últimos 3 signos vitales presentan valores levemente fuera de rango. ' +
+        'Se recomienda medicina general.';
+      this.requiereAtencion = false;
+    } else {
+      this.sugerenciaEspecialista = 'Medicina General';
+      this.mensajeSugerencia =
+        'Tus últimos 3 signos vitales se encuentran dentro de rangos normales. ' +
+        'Control rutinario con medicina general.';
+      this.requiereAtencion = false;
+    }
+  }
+
+  private fueraDeRango(valor: number | undefined, min: number, max: number): boolean {
+    return valor != null && (valor < min || valor > max);
+  }
+
+  formatearFechaHora(fecha: string | undefined): string {
+    if (!fecha) {
+      return '—';
+    }
+    return fecha.replace('T', ' ');
+  }
+
   abrirEdicion(registro: Persona): void {
     this.registroEditando = registro;
 

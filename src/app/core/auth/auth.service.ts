@@ -27,7 +27,8 @@ export class AuthService {
 
   logout(): Observable<void> {
     return this.msal.logoutRedirect({
-      postLogoutRedirectUri: 'https://cuidadoseguro.github.io/CuidadoSeguro_Front_Angular/',
+      //postLogoutRedirectUri: 'https://cuidadoseguro.github.io/CuidadoSeguro_Front_Angular/',
+      postLogoutRedirectUri: '/login',
     });
   }
 }
