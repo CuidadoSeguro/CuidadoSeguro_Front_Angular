@@ -440,10 +440,10 @@
 
 
 /* ==========================================
-   BUSCAR ESPECIALISTA
+   SIGNOS VITALES
 ========================================== */
 
-.search-section {
+.vitals-section {
   margin-bottom: 55px;
   padding: 45px 55px;
   background: white;
@@ -452,7 +452,14 @@
   box-shadow: 0 12px 35px rgba(25, 55, 90, 0.08);
 }
 
-.search-label {
+.vitals-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 25px;
+}
+
+.vitals-label {
   display: inline-block;
   margin-bottom: 14px;
   font-size: 12px;
@@ -461,110 +468,170 @@
   color: #1976df;
 }
 
-.search-content h2 {
+.vitals-header h2 {
   margin: 0;
   font-size: 30px;
   color: #102b50;
 }
 
-.search-content > p {
+.vitals-header p {
   margin: 14px 0 0;
   font-size: 16px;
   line-height: 1.6;
   color: #506984;
 }
 
-.search-form {
-  display: grid;
-  grid-template-columns: 1fr 1fr auto;
-  gap: 20px;
-  align-items: end;
-  margin-top: 30px;
-}
-
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.field label {
-  font-size: 13px;
-  font-weight: 600;
-  color: #203b59;
-}
-
-.field select {
-  padding: 12px 14px;
+.vitals-refresh {
+  flex-shrink: 0;
+  padding: 11px 18px;
   border: 1px solid #d5e2f0;
   border-radius: 10px;
   background: white;
-  color: #102b50;
-  font-family: inherit;
-  font-size: 14px;
-}
-
-.search-button {
-  padding: 12px 22px;
-  border: none;
-  border-radius: 10px;
-  background: #1976df;
-  color: white;
+  color: #174a7e;
   font-family: inherit;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
 }
 
-.search-button:disabled {
+.vitals-refresh:hover:not(:disabled) {
+  background: #f0f6fd;
+  border-color: #1976df;
+  color: #1976df;
+}
+
+.vitals-refresh:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-.search-message {
-  margin-top: 18px;
+.vitals-state {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 30px;
+  padding: 22px;
+  background: #f5f8fc;
+  border: 1px solid #e2e9f1;
+  border-radius: 14px;
   font-size: 14px;
   color: #6b7f96;
 }
 
-.results-list {
-  display: grid;
-  gap: 15px;
-  margin: 25px 0 0;
-  padding: 0;
-  list-style: none;
+.spinner {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  border: 2px solid #d5e2f0;
+  border-top-color: #1976df;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
 }
 
-.result-card {
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.vitals-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-top: 30px;
+}
+
+.vital-card {
   display: flex;
   flex-direction: column;
-  gap: 5px;
-  padding: 20px;
+  gap: 6px;
+  padding: 24px;
   background: #f5f8fc;
+  border: 1px solid #e2e9f1;
+  border-radius: 14px;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.vital-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(25, 55, 90, 0.1);
+}
+
+.vital-name {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: #6c86a2;
+}
+
+.vital-value {
+  font-size: 34px;
+  line-height: 1.1;
+  font-weight: 700;
+  color: #1976df;
+}
+
+.vital-value.vital-date {
+  font-size: 19px;
+  color: #203b59;
+}
+
+.vital-unit {
+  font-size: 13px;
+  font-weight: 600;
+  color: #6b7f96;
+}
+
+.vitals-history {
+  margin-top: 35px;
+}
+
+.vitals-history h3 {
+  margin: 0 0 18px;
+  font-size: 20px;
+  color: #203b59;
+}
+
+.vitals-table-wrap {
+  overflow-x: auto;
   border: 1px solid #e2e9f1;
   border-radius: 14px;
 }
 
-.result-card span {
-  font-size: 13px;
-  color: #6b7f96;
+.vitals-table-wrap table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  white-space: nowrap;
 }
 
-.schedules {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 8px;
+.vitals-table-wrap th {
+  padding: 13px 18px;
+  background: #eef5fd;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: #476b92;
 }
 
-.schedules span {
-  padding: 5px 10px;
-  border-radius: 999px;
-  background: #e9f3ff;
-  color: #174a7e;
-  font-size: 12px;
-  font-weight: 600;
+.vitals-table-wrap td {
+  padding: 13px 18px;
+  border-top: 1px solid #e8eef5;
+  color: #203b59;
+}
+
+.vitals-table-wrap tbody tr:hover {
+  background: #f8fbff;
 }
 
 /* ==========================================
@@ -654,12 +721,16 @@
     grid-template-columns: 1fr;
   }
 
-  .search-form {
-    grid-template-columns: 1fr;
+  .vitals-section {
+    padding: 35px 25px;
   }
 
-  .search-section {
-    padding: 35px 25px;
+  .vitals-header {
+    flex-direction: column;
+  }
+
+  .vitals-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .information-decoration {
@@ -760,6 +831,14 @@
 
   .stat-number {
     font-size: 45px;
+  }
+
+  .vitals-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .vitals-header h2 {
+    font-size: 25px;
   }
 
   .information-section {

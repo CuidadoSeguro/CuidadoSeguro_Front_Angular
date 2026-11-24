@@ -1,6 +1,5 @@
 export const environment = {
   production: true,
-
   apiUrl: 'https://i412mkzzqd.execute-api.us-east-1.amazonaws.com/',
 
   msal: {
@@ -10,5 +9,13 @@ export const environment = {
     scopes: [
       'api://3912eb25-8b20-4725-9b9d-18a99c419ead/access_as_user'
     ]
+  },
+
+  cognito: {
+    region: 'us-east-1',
+    userPoolId: 'us-east-1_RP2GidqrX',
+    // Usar el App Client ID PÚBLICO configurado para producción (sin secret).
+    userPoolClientId: '3r7j1mr0k9ng5p7uquqe656546',
+    authFlow: 'USER_PASSWORD_AUTH'
   }
 };

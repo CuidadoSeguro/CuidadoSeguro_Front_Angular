@@ -65,6 +65,8 @@ export class Administracion implements OnInit {
       apellidos: ['', [Validators.required, Validators.minLength(2)]],
       rut: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
+      password: [''],
+      confirmarPassword: [''],
       telefono: [''],
       estado: ['Activo', Validators.required],
       diagnostico: [''],
@@ -184,8 +186,11 @@ export class Administracion implements OnInit {
       especialidad: '',
       fechaNacimiento: '',
       numeroRegistro: '',
+      password: '',
+      confirmarPassword: '',
     });
 
+    this.configurarValidacionCredenciales(true);
     this.mostrarFormulario = true;
   }
   descargarFichaClinica(registro: Persona): void {
@@ -548,9 +553,28 @@ export class Administracion implements OnInit {
       especialidad: registro.especialidad ?? '',
       fechaNacimiento: registro.fechaNacimiento ?? '',
       numeroRegistro: registro.numeroRegistro ?? '',
+      password: '',
+      confirmarPassword: '',
     });
 
+    this.configurarValidacionCredenciales(false);
     this.mostrarFormulario = true;
+  }
+
+  private configurarValidacionCredenciales(esCreacion: boolean): void {
+    const password = this.formulario.get('password');
+    const confirmar = this.formulario.get('confirmarPassword');
+    if (!password || !confirmar) return;
+
+    if (this.esPaciente && esCreacion) {
+      password.setValidators([Validators.required, Validators.minLength(8)]);
+      confirmar.setValidators([Validators.required]);
+    } else {
+      password.clearValidators();
+      confirmar.clearValidators();
+    }
+    password.updateValueAndValidity();
+    confirmar.updateValueAndValidity();
   }
 
   guardar(): void {
@@ -565,6 +589,17 @@ export class Administracion implements OnInit {
     }
 
     const valores = this.formulario.getRawValue();
+
+    if (this.esPaciente && !this.registroEditando) {
+      if (String(valores.password ?? '').length < 8) {
+        this.error = 'La contraseña debe tener al menos 8 caracteres.';
+        return;
+      }
+      if (valores.password !== valores.confirmarPassword) {
+        this.error = 'Las contraseñas no coinciden.';
+        return;
+      }
+    }
 
     const persona: Persona = {
       id: this.registroEditando?.id,
@@ -608,6 +643,7 @@ export class Administracion implements OnInit {
       : this.administracionService.crear(
           this.tipoActivo,
           persona,
+          this.esPaciente ? String(valores.password ?? '') : undefined,
         );
 
     solicitud.subscribe({
@@ -619,7 +655,9 @@ export class Administracion implements OnInit {
 
         this.exito = editando
           ? 'Registro actualizado correctamente.'
-          : 'Registro creado correctamente.';
+          : (this.esPaciente
+              ? 'Paciente registrado y cuenta de acceso creada en Amazon Cognito.'
+              : 'Registro creado correctamente.');
 
         this.cargarRegistros();
         this.guardando = false;
@@ -631,8 +669,11 @@ export class Administracion implements OnInit {
         this.guardando = false;
 
         if (error?.status === 409) {
-          this.error =
-            `No se pudo guardar: ya existe un ${this.esPaciente ? 'paciente' : 'profesional'} con ese RUT.`;
+          this.error = error?.error?.mensaje ||
+            `No se pudo guardar: ya existe un ${this.esPaciente ? 'paciente' : 'profesional'} con ese RUT o correo.`;
+        } else if (error?.status === 400 || error?.status === 502) {
+          this.error = error?.error?.mensaje ||
+            'No fue posible crear la cuenta en Amazon Cognito. Revisa la política de contraseña y la configuración de AWS.';
         } else {
           this.error =
             'No se pudieron guardar los cambios. ' +

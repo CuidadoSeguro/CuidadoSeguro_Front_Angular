@@ -339,6 +339,31 @@
           </select>
         </label>
 
+        <ng-container *ngIf="esPaciente && !registroEditando">
+          <label>
+            Contraseña inicial
+            <input
+              type="password"
+              formControlName="password"
+              autocomplete="new-password"
+              placeholder="Mínimo 8 caracteres">
+            <small *ngIf="formulario.controls['password'].touched && formulario.controls['password'].invalid">
+              La contraseña debe tener al menos 8 caracteres.
+            </small>
+          </label>
+          <label>
+            Confirmar contraseña
+            <input
+              type="password"
+              formControlName="confirmarPassword"
+              autocomplete="new-password"
+              placeholder="Repite la contraseña">
+          </label>
+          <p class="full" style="margin: -8px 0 0; color: #718096; font-size: 11px; font-weight: 400;">
+            Esta contraseña se utilizará para crear la cuenta del paciente en Amazon Cognito.
+          </p>
+        </ng-container>
+
         <ng-container *ngIf="esPaciente">
           <label>
             Fecha de nacimiento

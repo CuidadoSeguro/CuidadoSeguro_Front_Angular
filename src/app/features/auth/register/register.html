@@ -1,0 +1,120 @@
+<div class="register-page">
+
+  <section class="hero-section">
+    <div class="hero-content">
+      <div class="brand">
+        <div class="brand-icon"><span>+</span></div>
+        <div>
+          <h1>Cuidado Seguro</h1>
+          <p>Salud y tecnología cuidando lo que más importa</p>
+        </div>
+      </div>
+      <h2>Crea tu cuenta</h2>
+      <p>
+        Regístrate como paciente para acceder a tus signos vitales y tu
+        historial clínico desde Cuidado Seguro.
+      </p>
+    </div>
+  </section>
+
+  <section class="register-section">
+    <div class="register-card">
+      <div class="register-header">
+        <h2>{{ paso === 'registro' ? 'Registro' : 'Confirmar cuenta' }}</h2>
+        <p>
+          {{ paso === 'registro'
+            ? 'Completa los datos para crear tu cuenta de paciente.'
+            : 'Ingresa el código que recibiste por correo.' }}
+        </p>
+      </div>
+
+      <form class="register-form" (ngSubmit)="paso === 'registro' ? registrarse() : confirmarRegistro()">
+
+        <div *ngIf="paso === 'registro'" class="form-group">
+          <label for="nombres">Nombres</label>
+          <input
+            id="nombres"
+            type="text"
+            name="nombres"
+            [(ngModel)]="nombres"
+            placeholder="Juan"
+            required>
+        </div>
+
+        <div *ngIf="paso === 'registro'" class="form-group">
+          <label for="apellidos">Apellidos</label>
+          <input
+            id="apellidos"
+            type="text"
+            name="apellidos"
+            [(ngModel)]="apellidos"
+            placeholder="Pérez Gómez"
+            required>
+        </div>
+
+        <div class="form-group">
+          <label for="email">Correo electrónico</label>
+          <input
+            id="email"
+            type="email"
+            name="email"
+            [(ngModel)]="email"
+            placeholder="correo@ejemplo.com"
+            required>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Contraseña</label>
+          <input
+            id="password"
+            type="password"
+            name="password"
+            [(ngModel)]="password"
+            placeholder="••••••••"
+            required>
+        </div>
+
+        <div *ngIf="paso === 'registro'" class="form-group">
+          <label for="confirmPassword">Confirmar contraseña</label>
+          <input
+            id="confirmPassword"
+            type="password"
+            name="confirmPassword"
+            [(ngModel)]="confirmPassword"
+            placeholder="••••••••"
+            required>
+        </div>
+
+        <div *ngIf="paso === 'confirmacion'" class="form-group">
+          <label for="codigoConfirmacion">Código de confirmación</label>
+          <input
+            id="codigoConfirmacion"
+            type="text"
+            name="codigoConfirmacion"
+            [(ngModel)]="codigoConfirmacion"
+            placeholder="123456"
+            required>
+        </div>
+
+        <div *ngIf="mensaje" class="error-mensaje">{{ mensaje }}</div>
+
+        <button
+          type="submit"
+          class="register-button"
+          [disabled]="cargando">
+          {{ cargando
+            ? (paso === 'registro' ? 'Registrando...' : 'Verificando...')
+            : (paso === 'registro' ? 'Crear cuenta' : 'Confirmar cuenta') }}
+        </button>
+
+      </form>
+
+      <div class="register-footer">
+        ¿Ya tienes cuenta?
+        <a (click)="irAlLogin()">Inicia sesión</a>
+      </div>
+
+    </div>
+  </section>
+
+</div>

@@ -83,11 +83,11 @@ export class AdministracionService {
     );
   }
 
-  crear(tipo: TipoRegistro, persona: Persona): Observable<Persona> {
+  crear(tipo: TipoRegistro, persona: Persona, password?: string): Observable<Persona> {
     const body =
       tipo === 'profesionales'
         ? this.personaToProfesional(persona)
-        : this.personaToPaciente(persona);
+        : { ...this.personaToPaciente(persona), password };
 
     return this.http
       .post<ProfesionalDto | PacienteDto>(

@@ -23,6 +23,9 @@ describe('ErrorComponent', () => {
           provide: GeneralService,
           useValue: {
             getProfessionalsCount: () => of(0),
+            getJwtAccess: () => null,
+            getPacientePorEmail: () => of(null),
+            getSignosVitales: () => of([]),
             clearSession: () => {},
           },
         },
